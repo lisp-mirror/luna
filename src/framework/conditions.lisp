@@ -17,6 +17,6 @@
 (define-condition luna-permission-error (luna-error) ())
 
 (defun log-trace-then-signal (category datum &rest arguments)
-  (let ((c (make-condition datum arguments)))
+  (let ((c (apply #'make-condition datum arguments)))
     (v:trace category c)
     (error c)))

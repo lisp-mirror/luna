@@ -29,9 +29,6 @@ returns another boolean value which is t if the default-level was given"
         (values (jsown:val users user-id) nil)
         (values default-level t))))
 
-(defmacro apply-filter (obj &rest filter)
-  `(jsown:filter ,obj ,@filter))
-
 ;;; fractions floats and stuff, matrix is really bad
 (defun ensure-integer (i)
   (etypecase i
@@ -51,22 +48,38 @@ returns another boolean value which is t if the default-level was given"
 
 (define-cmps weak ensure-integer > < <= >= =)
 
+(defun %apply-filter (obj filter)
+  "Maybe I'm too sleepy but this gives me a unecessary feeling.
+Returns a value if it exists for the filter, otherwise returns nil."
+  (declare (type list filter))
+  (if (null (cdr filter))
+      (and (jsown:keyp obj (car filter))
+           (jsown:val obj (car filter)))
+
+      (and (jsown:keyp obj (car filter))
+           (%apply-filter (jsown:val obj (car filter)) (cdr filter)))))
+
 (defun has-power-p (room-id user-id filter)
+  "returns a second value so you can check if the filter was actually found."
   (let* ((power-levels (cl-matrix:room-state room-id "m.room.power_levels"))
          (user-level (get-user-from-levels user-id power-levels))
-         (required-level (apply-filter power-levels filter)))
-    (weak>= user-level required-level)))
+         (required-level (%apply-filter power-levels filter)))
+    (if required-level
+        (values (weak>= user-level required-level) t)
+        (values nil nil))))
 
 (defun bot-powered-p (room-id filter)
   "finds if the bot has permission in the room state for the power level given by the filter
-will download the power_level state event and use cl-matrix:*account* to get the username"
+will download the power_level state event and use cl-matrix:*account* to get the username
+
+See has-power-p"
   (has-power-p room-id (cl-matrix:username cl-matrix:*account*) filter))
 
 (defun can-send-state-p (room-id user-id event-type)
   "finds if the user can send the state event"
   (let ((powered (has-power-p room-id user-id `("events" ,event-type))))
     (if powered
-        t
+        (values t t)
         (has-power-p room-id user-id '("state_default")))))
 
 (defun report-summary (control-id summary &optional event-id)

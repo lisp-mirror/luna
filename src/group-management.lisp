@@ -79,19 +79,22 @@
      target-id
      +state-type+
      group-name
-     (jsown:extend-js existing-state
-       ("control_room" control-id)))))
+     (jsown:to-json
+      (jsown:extend-js existing-state
+        ("control_room" control-id))))))
 
 (defun add-targets-to-control (group-name control &rest targets)
   "edits the room state of the control room and adds the targets to the group"
   (declare (type string group-name control))
   (let* ((existing-state (cl-matrix:room-state control +state-type+ group-name))
-         (new-targets (list* (jsown:val existing-state "target_rooms")
-                             targets)))
+         (new-targets (append targets
+                             (and (jsown:keyp existing-state "target_rooms")
+                                  (jsown:val existing-state "target_rooms")))))
     (matrix-requests:put-rooms/roomid/state/eventtype/statekey
      cl-matrix:*account* control +state-type+ group-name
-     (jsown:extend-js existing-state
-       ("target_rooms" new-targets)))))
+     (jsown:to-json
+      (jsown:extend-js existing-state
+        ("target_rooms" new-targets))))))
 
 ;;; make the group-name, control-id ignorable
 (defmacro define-target-step (name (target-room control-room group-name &rest args) (&rest filter) &body body)

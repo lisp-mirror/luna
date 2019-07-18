@@ -16,4 +16,5 @@
   (let ((command-job (make-command-job name rest room-id event)))
     (execute command-job)
     ;; this needs hanlder-case around it.
-    (report-summary room-id (report command-job nil) (jsown:val event "event_id"))))
+    (report-summary room-id (report command-job nil) (jsown:val event "event_id"))
+    (v:debug :command-hook command-job)))
