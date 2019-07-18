@@ -38,11 +38,10 @@ See execute"
   (setf (status job) +execute+)
   ;;; call the plan builder
   (let ((result
-         (handler-case (%ensure-result-as-list-for-plan job)
-           (error (c) (add-conditions job c) +failed+)
-           (:no-error (c) (declare (ignore c)) +continue+))))
-    (unless (eql (status job) +continue+)
-      (setf (status job) result))))
+         (safely-execute job *debug-execution* +continue+ (%ensure-result-as-list-for-plan job))))
+    (setf (status job) result))
+  (unless (eql (status job) +continue+)
+    (setf (status job) +failed+)))
 
 (defmethod execute ((job plan-job))
   (when (eql (status job) +continue+)

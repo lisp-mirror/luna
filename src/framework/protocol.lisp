@@ -19,6 +19,10 @@ and needs to tell the next-method that it is safe to continue.")
 
 |#
 
+(defvar *debug-execution* nil
+  "When t, executors will not invoke a restart when a condition is singaled in the step that is being executed and allow
+for interactive debugging. ")
+
 (defclass base-step () ())
 (defclass base-job () ())
 

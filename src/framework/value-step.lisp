@@ -12,16 +12,18 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
                   :documentation "stores the values result of the step-function "))
   (:documentation "a job that will store the values from it's values-step that can be accessed with step-values."))
 
+(defmethod print-object ((job value-job) stream)
+  (print-unreadable-object (job stream :type t :identity t)
+    (format stream "status: ~a, conditions: ~a, values:~{~%~a~}" (status job) (length (conditions job)) (slot-value job '%step-values))))
+
 (defmethod step-values :around ((job job))
   (values-list (call-next-method)))
 
 (defmethod execute ((job job))
   (let ((result
-         (handler-case (setf (step-values job)
+         (safely-execute job *debug-execution* +passed+ (setf (step-values job)
                              (multiple-value-list (apply (step-function (step-obj job))
-                                                         (arguments job))))
-           (error (c) (add-conditions job c) +failed+)
-           (:no-error (c) +passed+))))
+                                                         (arguments job)))))))
     (setf (status job) result))
   job)
 

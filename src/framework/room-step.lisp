@@ -14,7 +14,7 @@
                    `(cond ((bot-powered-p ,room-id-sym ',filter)
                           ,@body)
 
-                         (t (log-trace-then-signal 'luna-permission-error :description
+                         (t (log-trace-then-signal :room-step 'luna-permission-error :description
                                                    (format nil "insufficent power level ~a in room ~a" ',filter ,room-id-sym))))
                    `(progn ,@body)))))
        (intern-step ',name

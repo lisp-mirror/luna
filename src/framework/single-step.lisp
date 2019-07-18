@@ -29,11 +29,12 @@ if nil is provided as the stream then the report is expected to return a string.
   (apply (reporter step)
          stream args))
 
-
 (defmacro define-job-creator (step-type job-type)
   `(defmethod create-job ((step ,step-type) &rest arguments)
      (make-instance ',job-type :arguments arguments
                     :step step)))
+
+(define-job-creator single-step job)
 
 (defclass job (base-job)
   ((arguments :initarg :arguments :accessor arguments
@@ -48,6 +49,10 @@ when it is executed.")
 
    (step-obj :initarg :step :accessor step-obj
              :type single-step)))
+
+(defmethod print-object ((job job) stream)
+  (print-unreadable-object (job stream :type t :identity t)
+    (format stream "status: ~a, conditions: ~a" (status job) (length (conditions job)))))
 
 (defun %status-branch-equal (status branch)
   (cond ((listp branch)
@@ -79,12 +84,21 @@ when it is executed.")
   (setf (conditions job)
         (list* (conditions job) conditions)))
 
+;;; find if this passed goes through even if it fails.
+(defmacro safely-execute (job debuggerp default-status &body body)
+  "execute the body with default restart options if there is no-error +passed+ will be the result."
+  `(handler-bind ((error #'(lambda (c)
+                             (format t "entering handler bind!!!!")
+                             (add-conditions ,job c)
+                             (unless ,debuggerp (invoke-restart 'fail-job)))))
+     (block restart-block
+       (restart-case (progn ,@body ,default-status)
+         (fail-job () (return-from restart-block +failed+))))))
+
 (defmethod execute ((job job))
   (let ((result
-         (handler-case (apply (step-function (step-obj job))
-                              (arguments job))
-           (error (c) (add-conditions job c) +failed+)
-           (:no-error (c) (declare (ignore c)) +passed+))))
+         (safely-execute job *debug-execution* +passed+ (apply (step-function (step-obj job))
+                              (arguments job)))))
     (setf (status job) result))
   job)
 

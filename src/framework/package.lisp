@@ -25,6 +25,8 @@
    #:get-step
    #:intern-step
 
+   #:*debug-execution*
+
    ;; single-step.lisp
 
    ;; class single-step
