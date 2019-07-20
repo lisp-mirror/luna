@@ -100,7 +100,7 @@
 (defmacro define-target-step (name (target-room control-room group-name &rest args) (&rest filter) &body body)
   "create a step that will assert that the target-room is controlled by control-room before executing the body
 control-room and group-name are declared to be ignorable."
-  `(define-room-step ,name (,target-room ,control-room ,group-name ,@args) (,filter)
+  `(define-room-step ,name (,target-room ,control-room ,group-name ,@args) ,filter
      (declare (ignorable ,control-room ,group-name))
      ;; remove declerations from body and put them here (kinda eh but it'll do)
      ,@(prog1 (remove-if-not (lambda (l) (eql l 'declare)) body :key #'car)

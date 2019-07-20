@@ -16,14 +16,15 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
   (print-unreadable-object (job stream :type t :identity t)
     (format stream "status: ~a, conditions: ~a, values:~{~%~a~}" (status job) (length (conditions job)) (slot-value job '%step-values))))
 
-(defmethod step-values :around ((job job))
+(defmethod step-values :around ((job value-job))
   (values-list (call-next-method)))
 
-(defmethod execute ((job job))
+(defmethod execute ((job value-job))
   (let ((result
-         (safely-execute job *debug-execution* +passed+ (setf (step-values job)
-                             (multiple-value-list (apply (step-function (step-obj job))
-                                                         (arguments job)))))))
+         (safely-execute job *debug-execution* +passed+
+           (setf (step-values job)
+                 (multiple-value-list (apply (step-function (step-obj job))
+                                             (arguments job)))))))
     (setf (status job) result))
   job)
 

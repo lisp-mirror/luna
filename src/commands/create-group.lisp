@@ -3,7 +3,7 @@
 
 (in-package #:luna)
 
-(define-target-step add-room-to-group (target-room control-room group-name sender-id) ()
+(define-room-step add-room-to-group (target-room control-room group-name sender-id) ()
   (unless (can-send-state-p target-room (cl-matrix:username cl-matrix:*account*) "luna.group")
     (error 'luna-permission-error :description (format nil "~a doesn't have permission in ~a to start a group"
                                                        (cl-matrix:username cl-matrix:*account*) target-room)))
@@ -25,7 +25,7 @@
   ;; what if you wanted to add the targets to control after it's been confirmed that the
   ;; add-control-to-target/s have worked and remove the ones that havn't form the list :thinking:
   ;; although, this method is quite safe due to the mapgroup also (ie mapgroup won't work if the apply
-  ;; form here hasn't worked.
+  ;; form here hasn't worked.)
   (apply #'add-targets-to-control group control targets)
   (mapgroup (lambda (r)
               (create-job (get-step 'add-room-to-group) r control group sender))
@@ -40,7 +40,7 @@
 (define-command-parser add-to-group (name rest room-id event)
   (declare (ignore name))
   (cl-ppcre:register-groups-bind (group-name targets)
-      ("^(\\S+)\\s+(\\S+)\\s+(.+)" rest)
+      ("^(\\S+)\\s+((?:\\s*\\S+)+)" rest)
     (when (and group-name targets)
       (let ((targets (cl-strings:split targets)))
         (apply #'create-job (get-step 'group-builder)

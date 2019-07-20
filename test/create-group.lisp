@@ -24,6 +24,26 @@ will return t if the predicate was matched, nil if there was a timeout. "
     found?))
 
 ;;; we need a test that tests the *debug-execution* parameter.
+
+(define-test create-group-parser
+
+  ;; this test uses internals but it isn't so bad.
+  ;; It only needs to know what arguments add-control-to-target takes and destructure them.
+  (let* ((parser (luna.framework::get-parser "add-to-group"))
+         (group-builder
+          (funcall (luna.framework:step-function parser) "add-to-group"
+                   "test-group !test:matrix.org !test-2:matrix.org !test-3:foo.net " ; tailing space is intentional.
+                   "!control:foo.net"
+                   '(:obj ("sender" . "@me:poo.town"))))
+         (targets (cdddr (luna.framework:arguments group-builder))))
+
+    (is = 3 (length targets))
+    (true (find "!test:matrix.org" targets
+                :test #'string=) "can't find room-id ~a in targets" "!test:matrix.org")
+
+    (true (find "!test-3:foo.net" targets
+                :test #'string=) "can't find room-id ~a in targets" "!test-3:foo.net")))
+
 (define-test create-group
 
   (with-fixtures '(luna.framework:*debug-execution*)

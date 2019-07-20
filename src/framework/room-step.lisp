@@ -4,7 +4,6 @@
 (in-package #:luna.framework)
 
 (defmacro define-room-step (name (room-id-sym &rest args) (&rest filter) &body body)
-  (unless filter (error 'luna-error :description "must supply a filter to a room step"))
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (let ((step-function
             (lambda (,room-id-sym ,@args)
