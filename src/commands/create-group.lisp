@@ -33,7 +33,7 @@
 
 (define-step-reporter group-builder (stream control group sender &rest targets)
   (declare (ignore sender))
-  (format stream "~&plan to add~%~a~%~%to ~a as group ~a"
+  (format stream "~&plan to add: ~{~%    ~a~}~%to ~a as group ~a"
           targets control group))
 
 ;;; !luna add-to-group cheesewheel &rest

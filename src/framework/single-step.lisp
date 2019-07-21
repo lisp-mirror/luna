@@ -10,7 +10,7 @@
 
    (reporter :initarg :reporter :accessor reporter
              :initform (lambda (stream &rest args)
-                         (format stream "step with: ~a" args))
+                         (format stream "step with args: ~a" args))
              :type function
            :documentation "a function to be called with a step instance, stream and the same arguments as the step-funcion expects and report what the step is going to do to the stream in the context of the arguments provided.
 if nil is provided as the stream then the report is expected to return a string.
