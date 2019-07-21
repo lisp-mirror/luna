@@ -45,8 +45,8 @@ with conditions
 ... you can see how control gets passed to other things."))
 
 (defmethod report :around (job/step (stream (eql nil)) &rest args)
-  (with-output-to-string (stream)
-    (apply #'report job/step stream args)))
+  (with-output-to-string (s)
+    (apply #'report job/step s args)))
 
 (defvar *step-table* (make-hash-table :test 'equal))
 (defun get-step (name)

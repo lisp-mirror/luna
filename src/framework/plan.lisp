@@ -7,6 +7,12 @@
 (defclass plan-job (value-job)
   ((%step-values :reader sub-jobs)))
 
+
+(defmethod print-object ((job plan-job) stream)
+  (print-unreadable-object (job stream :type t :identity t)
+    (format stream "status: ~a, conditions: ~a, sub-jobs:~{~%~a~}" (status job) (length (conditions job))
+            (sub-jobs job))))
+
 (defmethod sub-jobs :around ((job plan-job))
   (car (call-next-method)))
 
@@ -49,8 +55,9 @@ See execute"
     (mapc #'execute (sub-jobs job))
     (let ((bad-results
            (remove-if (lambda (r) (eql r +passed+)) (sub-jobs job) :key #'status)))
-      (when bad-results
-          (setf (status job) +contested+)))))
+      (if bad-results
+          (setf (status job) +contested+)
+          (setf (status job) +passed+)))))
 
 ;;; later on use cl-markless and add colours to reports.
 (defmethod report ((job plan-job) stream &rest args)
