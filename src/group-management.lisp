@@ -74,7 +74,7 @@
   "edits the room state of only the target room to add it to the group."
   (declare (type string group-name control-id target-id))
   (let ((existing-state (cl-matrix:room-state target-id +state-type+ group-name)))
-    (matrix-requests:put-rooms/roomid/state/eventtype/statekey
+    (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
      cl-matrix:*account*
      target-id
      +state-type+
@@ -90,7 +90,7 @@
          (new-targets (append targets
                              (and (jsown:keyp existing-state "target_rooms")
                                   (jsown:val existing-state "target_rooms")))))
-    (matrix-requests:put-rooms/roomid/state/eventtype/statekey
+    (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
      cl-matrix:*account* control +state-type+ group-name
      (jsown:to-json
       (jsown:extend-js existing-state
