@@ -82,7 +82,7 @@ when it is executed.")
 
 (defmethod add-conditions ((job job) &rest conditions)
   (setf (conditions job)
-        (list* (conditions job) conditions)))
+        (append (conditions job) conditions)))
 
 ;;; find if this passed goes through even if it fails.
 (defmacro safely-execute (job debuggerp default-status &body body)
