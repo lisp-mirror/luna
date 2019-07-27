@@ -4,4 +4,5 @@
   :license "AGPL v3+"
   :depends-on ("luna" "parachute")
   :components ((:file "package")
+               (:module "config" :components ((:file "config")))
                (:file "create-group")))

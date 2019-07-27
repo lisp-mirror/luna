@@ -4,7 +4,7 @@
 (in-package #:luna.framework)
 
 ;; get sync token from config when it first starts up
-(defun make-listener (&optional (sync-token (cl-matrix:now-token)))
+(defun make-listener (sync-token sync-rate)
   (let ((sync-token sync-token))
     (lambda ()
       (v:info :listener "starting listener ~a" sync-token)
@@ -16,10 +16,10 @@
                      sync-token)
              (cl-matrix.base-events:issue-sync-event sync-data)
              (setf sync-token next-token))
-           (sleep 5)
+           (sleep sync-rate)
 ))))
 
-(defun start-listening (&optional (sync-token (cl-matrix:now-token)))
-  (let ((*standard-output* *standard-output*)
-        (cl-matrix:*account* cl-matrix:*account*))
-    (bt:make-thread (make-listener sync-token))))
+(defun start-listening (&key (sync-token (cl-matrix:now-token)) (sync-rate 0.2))
+  (bt:make-thread (make-listener sync-token sync-rate)
+                  :initial-bindings `((*standard-output* . ,*standard-output*)
+                                      (cl-matrix:*account* . ,cl-matrix:*account*))))
