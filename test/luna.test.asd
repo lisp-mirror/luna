@@ -5,4 +5,5 @@
   :depends-on ("luna" "parachute")
   :components ((:file "package")
                (:module "config" :components ((:file "config")))
+               (:file "test-all")
                (:file "create-group")))

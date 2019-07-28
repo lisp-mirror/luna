@@ -88,7 +88,6 @@ when it is executed.")
 (defmacro safely-execute (job debuggerp default-status &body body)
   "execute the body with default restart options if there is no-error +passed+ will be the result."
   `(handler-bind ((error #'(lambda (c)
-                             (format t "entering handler bind!!!!")
                              (add-conditions ,job c)
                              (unless ,debuggerp (invoke-restart 'fail-job)))))
      (block restart-block
