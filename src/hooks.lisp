@@ -13,8 +13,6 @@
       (luna-command name rest room-id event))))
 
 (defun luna-command (name rest room-id event)
-  (let ((command-job (make-command-job name rest room-id event)))
-    (execute command-job)
-    ;; this needs hanlder-case around it.
-    (report-summary room-id (report command-job nil) (jsown:val event "event_id"))
-    (v:debug :command-hook command-job)))
+  ;; this needs hanlder-case around it.
+  (report room-id (jsown:val event "event_id")
+          (funcall (get-parser name) name rest room-id event)))

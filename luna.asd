@@ -8,7 +8,6 @@
                         ((:file "package")
                          (:file "hooks")
                          (:file "group-management")
-                         (:file "actions")
                          (:module "commands"
                                   :components
                                   ((:file "create-group")))
