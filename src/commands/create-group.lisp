@@ -22,8 +22,7 @@
   (let ((rooms-and-conditions
          (lparallel:pmapcar
           (luna-lambda (r)
-            (prog1 (add-room-to-group r control group sender)
-              (v:info :add-room "finsihed adding ~a" r)))
+            (add-room-to-group r control group sender))
           targets)))
     (apply #'add-targets-to-control group control (remove-if-not #'stringp rooms-and-conditions))
     (remove-if #'stringp rooms-and-conditions)))

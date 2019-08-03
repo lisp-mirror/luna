@@ -82,6 +82,4 @@ See has-power-p"
         (values t t)
         (has-power-p room-id user-id '("state_default")))))
 
-(defun report-summary (control-id summary &optional event-id)
-  (cl-matrix:msg-send summary control-id :type "m.notice" :event-id event-id)
-  (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))
+

@@ -30,6 +30,7 @@
                   :initial-bindings `((*standard-output* . ,*standard-output*)
                                       (cl-matrix:*account* . ,cl-matrix:*account*)
                                       (lparallel:*kernel* . ,lparallel:*kernel*))))
+
 (defmacro luna-lambda ((&rest lambda-list) &body body)
   "gets the context needed for tasks before submitting to worker threads, such as cl-matrix:*account*"
   (let ((account-sym (gensym)))
