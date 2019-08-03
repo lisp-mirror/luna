@@ -13,6 +13,6 @@
       (luna-command name rest room-id event))))
 
 (defun luna-command (name rest room-id event)
+  (v:debug :command-listener "Got command in ~a:~a ~a" room-id name rest)
   ;; this needs hanlder-case around it.
-  (report room-id (jsown:val event "event_id")
-          (funcall (get-parser name) name rest room-id event)))
+  (defer-report *channel* name rest room-id event))

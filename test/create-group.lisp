@@ -27,8 +27,8 @@ will return t if the predicate was matched, nil if there was a timeout. "
 (define-test create-group
 
   ;; this tests normal operation of the command, we also need tests for unexpected/malicious things.
-  (with-fixtures '(blackbird:*debug-on-error*)
-    (setf blackbird:*debug-on-error* t)
+  (with-fixtures '(luna.framework::*debug-execution*)
+    (setf luna.framework::*debug-execution* t)
     (cl-matrix:with-account (*luna-user*)
       (let ((control-room (cl-matrix:room-create))
             (targets (create-rooms 3))

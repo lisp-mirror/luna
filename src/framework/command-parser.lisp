@@ -23,27 +23,6 @@ At the minute there is no package system."
   (let ((designator (transform-parser-designator designator)))
     (setf (gethash designator *parser-table*) parser)))
 
-;;; you probably still want a way to customise reports but this is a good default.
-(defgeneric report (target event-id conditions))
-
-(defmethod report (target event-id (promise blackbird:promise))
-  (blackbird:chain promise
-    (:attach (conditions)
-             (report target event-id conditions))
-    (:catcher (c) (report-summary target
-                   (format nil "Failed with condition:~%~a" c) event-id))))
-
-(defmethod report (target event-id (conditions list))
-  (let ((message
-         (cond ((null conditions)
-                (with-output-to-string (s)
-                  (format s "Finished Succesfully")))
-
-               (t (with-output-to-string (s)
-                    (format s "Contested with ~d conditions:" (length conditions))
-                    (format-indent 4 s "~{~%~a~}" conditions))))))
-    (report-summary target message event-id)))
-
 (defmacro define-command-parser (name (given-command string-args room-id event) &body body)
   "define a parser for make-command-job and the luna-command hook to use.
 name is the key the parser is to be interned with.
