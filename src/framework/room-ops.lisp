@@ -59,7 +59,7 @@ Returns a value if it exists for the filter, otherwise returns nil."
       (and (jsown:keyp obj (car filter))
            (%apply-filter (jsown:val obj (car filter)) (cdr filter)))))
 
-(defun has-power-p (room-id user-id filter)
+(defun has-power-p (room-id user-id &rest filter)
   "returns a second value so you can check if the filter was actually found."
   (let* ((power-levels (cl-matrix:room-state room-id "m.room.power_levels"))
          (user-level (get-user-from-levels user-id power-levels))
@@ -68,18 +68,18 @@ Returns a value if it exists for the filter, otherwise returns nil."
         (values (weak>= user-level required-level) t)
         (values nil nil))))
 
-(defun bot-powered-p (room-id filter)
+(defun bot-powered-p (room-id &rest filter)
   "finds if the bot has permission in the room state for the power level given by the filter
 will download the power_level state event and use cl-matrix:*account* to get the username
 
 See has-power-p"
-  (has-power-p room-id (cl-matrix:username cl-matrix:*account*) filter))
+  (apply #'has-power-p room-id (cl-matrix:username cl-matrix:*account*) filter))
 
 (defun can-send-state-p (room-id user-id event-type)
   "finds if the user can send the state event"
-  (let ((powered (has-power-p room-id user-id `("events" ,event-type))))
+  (let ((powered (has-power-p room-id user-id "events" event-type)))
     (if powered
         (values t t)
-        (has-power-p room-id user-id '("state_default")))))
+        (has-power-p room-id user-id "state_default"))))
 
 

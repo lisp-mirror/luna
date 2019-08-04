@@ -7,6 +7,18 @@
 
 (defparameter *listeners* nil)
 
+(defun create-group-and-start-listening (group-name nrooms &key (sync-rate 0.2))
+  "(values rooms listener)
+rooms is a list of rooms, the car being the control an the cdr being the targets. "
+  (let ((rooms (create-rooms nrooms)))
+    (let ((listener (luna.framework:start-listening :sync-rate sync-rate)))
+      (push listener *listeners*) ; clean up later.
+      (let ((before-token (cl-matrix:now-token)))
+        (send-command (car rooms) (format nil "!luna add-to-group ~a ~{~a ~}" group-name (cdr rooms)))
+        (wait-until (car rooms) #'replyp :sync-token before-token))
+
+      (values rooms listener))))
+
 (defun create-rooms (n)
   (loop :for i :from 0 :to n :collect
        (cl-matrix:room-create)))
@@ -24,6 +36,10 @@ will return t if the predicate was matched, nil if there was a timeout. "
            (incf sleep-count sleep-time)))
     found?))
 
+(defun replyp (e)
+   (let ((e (jsown:val e "content")))
+     (jsown:keyp e "m.relates_to")))
+
 (define-test create-group
 
   ;; this tests normal operation of the command, we also need tests for unexpected/malicious things.
@@ -39,8 +55,7 @@ will return t if the predicate was matched, nil if there was a timeout. "
           (send-command control-room (format nil "!luna add-to-group ~a ~{~a ~}" test-group targets))
           (true (wait-until control-room (lambda (e)
                                            (let ((e (jsown:val e "content")))
-                                             (when (jsown:keyp e "m.relates_to")
-                                               (print (jsown:val e "body") *standard-output*))))
+                                             (jsown:keyp e "m.relates_to")))
                             :sync-token begin-test-token
                             :timeout 100)
                 "timed out waiting for luna to reply to group command")

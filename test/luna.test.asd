@@ -6,4 +6,8 @@
   :components ((:file "package")
                (:module "config" :components ((:file "config")))
                (:file "test-all")
-               (:file "create-group")))
+               (:file "create-group")
+               (:module "commands"
+                        :components
+                        ((:file "group-ban")
+                         (:file "redact-all")))))

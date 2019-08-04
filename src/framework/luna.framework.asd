@@ -7,6 +7,6 @@
                (:file "conditions")
                (:file "room-ops")
                (:file "command-parser")
-               (:file "report")
                (:file "step")
-               (:file "listener")))
+               (:file "listener")
+               (:file "report")))

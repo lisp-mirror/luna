@@ -33,8 +33,12 @@
 
 (defmacro luna-lambda ((&rest lambda-list) &body body)
   "gets the context needed for tasks before submitting to worker threads, such as cl-matrix:*account*"
-  (let ((account-sym (gensym)))
-    `(let ((,account-sym cl-matrix:*account*))
+  (let ((account-sym (gensym))
+        (debug-sym (gensym)))
+    `(let ((,account-sym cl-matrix:*account*)
+           (,debug-sym *debug-execution*))
        (lambda ,lambda-list
-         (cl-matrix:with-account (,account-sym)
-           ,@body)))))
+         (let ((*debug-execution* ,debug-sym))
+           (declare (special *debug-execution*))
+           (cl-matrix:with-account (,account-sym)
+             ,@body))))))

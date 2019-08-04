@@ -10,5 +10,7 @@
                          (:file "group-management")
                          (:module "commands"
                                   :components
-                                  ((:file "create-group")))
+                                  ((:file "create-group")
+                                   (:file "group-ban")
+                                   (:file "redact-all")))
 ))))

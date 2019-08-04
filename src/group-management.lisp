@@ -96,17 +96,16 @@ uses lparallel:pmapcar. "
       (jsown:extend-js existing-state
         ("target_rooms" new-targets))))))
 
-;;; make the group-name, control-id ignorable
-(defmacro define-target-step (name (target-room control-room group-name &rest args) (&rest filter) &body body)
+(defmacro define-target-step (name (target-room control-room group-name &rest args) &body body)
   "create a step that will assert that the target-room is controlled by control-room before executing the body
 control-room and group-name are declared to be ignorable."
-  `(define-room-step ,name (,target-room ,control-room ,group-name ,@args) ,filter
-     (declare (ignorable ,control-room ,group-name))
-     ;; remove declerations from body and put them here (kinda eh but it'll do)
-     ,@(prog1 (remove-if-not (lambda (l) (eql l 'declare)) body :key #'car)
-        (setf body (delete-if (lambda (l) (eql l 'declare)) body :key #'car)))
+  (multiple-value-bind (body declerations docstring) (alexandria:parse-body body)
+    (push `(declare (ignorable ,control-room ,group-name)) declerations)
+    `(define-step ,name (,target-room ,control-room ,group-name ,@args)
+       ,@ (if docstring
+              `(docstring ,@declerations)
+              declerations)
+          (unless (control-present-in-target-p ,group-name ,control-room ,target-room)
+            (error 'luna-error :description (format nil "~a is not a group that has ~a as a control_room in ~a. Look at the room state event for luna.group to find out why." ,group-name ,control-room ,target-room)))
 
-     (unless (control-present-in-target-p ,group-name ,control-room ,target-room)
-       (error 'luna-error :description (format nil "~a is not a group that has ~a as a control_room in ~a. Look at the room state event for luna.group to find out why." ,group-name ,control-room ,target-room)))
-
-     ,@body))
+          ,@body)))
