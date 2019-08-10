@@ -23,7 +23,17 @@
   (let ((sync-token sync-token))
     (v:info :listener "starting listener ~a" sync-token)
     (lambda ()
-      (sync-listener sync-rate sync-token))))
+      (tagbody listen-start
+         (handler-bind ((error (lambda (c) (unless *debug-execution* (invoke-restart 'restart-listener c)))))
+           (restart-case (sync-listener sync-rate sync-token)
+             (restart-listener (c) (v:error :listener "condition hit listener top:~%~a~%~%" c)
+                               (sleep 1) ; we should wait just incase things go really wrong.
+                               (go reset-listener))))
+
+       reset-listener
+         (v:info :listener "restarting listener")
+         (setf sync-token (cl-matrix:now-token))
+         (go listen-start)))))
 
 (defun start-listening (&key (sync-token (cl-matrix:now-token)) (sync-rate 0.2))
   (bt:make-thread (make-listener sync-token sync-rate)
