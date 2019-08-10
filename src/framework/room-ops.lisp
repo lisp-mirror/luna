@@ -82,4 +82,17 @@ See has-power-p"
         (values t t)
         (has-power-p room-id user-id "state_default"))))
 
-
+;;; to do but not urgently (we aren't a client but we should still do this), escape the src=.
+(defun room-preview (room)
+  "return a readable org.matrix.custom.html room preview, something like 
+[x](this is the room image as an img tag) <room name>"
+  (lparallel:plet ((m.room.name  (cl-matrix:room-state room "m.room.name"))
+                   (m.room.avatar (cl-matrix:room-state room "m.room.avatar")))
+    (format nil
+            "~@[<img src=~s height=\"32\" alt\"room avatar\" vertical-align=\"middle\">~] ~@[~a~] (<code>~a</code>)"
+            (and (jsown:keyp m.room.avatar "url") (jsown:val m.room.avatar "url"))
+            (and (jsown:Keyp m.room.name "name") (jsown:val m.room.name "name"))
+            room)))
+#|
+(cl-matrix:msg-send "<img src=\"mxc://matrix.org/fkUyAnpRqaCayYGPTLIKibfg\" height=\"32\" alt\"room avatar\" vertical-align=\"middle\"> Cool Room With Pic (<code>!HPFFIiVtELwKSMeato:matrix.org</code>)" "!HPFFIiVtELwKSMeato:matrix.org" :format "org.matrix.custom.html" :formatted-body "<img src=\"mxc://matrix.org/fkUyAnpRqaCayYGPTLIKibfg\" height=\"32\" alt\"room avatar\" vertical-align=\"middle\"> Cool Room With Pic (<code>!HPFFIiVtELwKSMeato:matrix.org</code>)")
+|#
