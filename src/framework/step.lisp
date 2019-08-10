@@ -6,7 +6,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (declaim (inline step-result))
 (defun step-result  (room-id &optional error)
-  (declare (type room-id string))
+  (declare (type string room-id))
   (cons room-id error))
 
 (defmacro catch-error (effective-room &body body)

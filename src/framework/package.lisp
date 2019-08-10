@@ -22,6 +22,7 @@
    #:get-reporter
    #:intern-reporter
    #:defer-report
+   #:bad-resultp
    
    ;; room-ops.lisp
    #:has-power-p

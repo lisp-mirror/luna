@@ -86,8 +86,8 @@ See has-power-p"
 (defun room-preview (room)
   "return a readable org.matrix.custom.html room preview, something like 
 [x](this is the room image as an img tag) <room name>"
-  (lparallel:plet ((m.room.name  (cl-matrix:room-state room "m.room.name"))
-                   (m.room.avatar (cl-matrix:room-state room "m.room.avatar")))
+  (let ((m.room.name  (cl-matrix:room-state room "m.room.name"))
+        (m.room.avatar (cl-matrix:room-state room "m.room.avatar")))
     (format nil
             "~@[<img src=~s height=\"32\" alt\"room avatar\" vertical-align=\"middle\">~] ~@[~a~] (<code>~a</code>)"
             (and (jsown:keyp m.room.avatar "url") (jsown:val m.room.avatar "url"))

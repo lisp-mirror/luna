@@ -4,19 +4,25 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defvar *report-table* (make-hash-table :test 'equal))
 
-(defun default-reporter (target event-id conditions)
+(defun bad-resultp (thing)
+  (and (listp thing)
+       (and (typep (cdr thing) 'error))))
+
+(defun default-reporter (target event-id result/s)
   (let ((message
-         (cond ((null conditions)
-                (with-output-to-string (s)
-                  (format s "<font color=\"green\">Finished</font> Succesfully")))
+         (if (bad-resultp result/s)
+             (with-output-to-string (s)
+               (format s "<font color=\"red\">Failed</font> with condition:~%~a" (cdr result/s)))
+             (let ((bad-rooms (remove-if-not #'bad-resultp result/s)))
+               (cond ((null bad-rooms)
+                      (with-output-to-string (s)
+                        (format s "<font color=\"green\">Finished</font> Succesfully")))
 
-               ((atom conditions)
-                (with-output-to-string (s)
-                  (format s "<font color=\"red\">Failed</font> with condition:~%~a" conditions)))
-
-               (t (with-output-to-string (s)
-                    (format s "<font color=\"yellow\">Contested</font> with ~d conditions:" (length conditions))
-                    (format-indent 4 s "~{~%~a~}" conditions))))))
+                     (t (with-output-to-string (s)
+                          (format s "<font color=\"yellow\">Contested</font> with ~d conditions:" (length bad-rooms))
+                          (dolist (r bad-rooms)
+                            (format-indent 4 s "~%~a" (room-preview (car r)))
+                            (format-indent 8 s "~%~a" (cdr r))))))))))
     (report-summary target message event-id)))
 
 (defun intern-reporter (name reporter)

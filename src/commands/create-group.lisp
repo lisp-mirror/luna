@@ -19,13 +19,13 @@
   (unless (can-send-state-p control sender +state-type+)
     (error 'luna-permission-error :description (format nil "~a doesn't have permission to send ~a events"
                                                        sender +state-type+)))
-  (let ((rooms-and-conditions
+  (let ((results
          (lparallel:pmapcar
           (luna-lambda (r)
             (add-room-to-group r control group sender))
           targets)))
-    (apply #'add-targets-to-control group control (remove-if-not #'stringp rooms-and-conditions))
-    (remove-if #'stringp rooms-and-conditions)))
+    (apply #'add-targets-to-control group control (remove-if #'bad-resultp results))
+    results))
 
 ;;; !luna add-to-group cheesewheel &rest
 ;;; could do reprots here? passing the conditions promise to them?

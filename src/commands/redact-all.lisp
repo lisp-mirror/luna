@@ -24,11 +24,10 @@
            (format nil "~a doesn't have permission to redact in this room." sender)))
 
   (prog1
-    (remove-if-not (lambda (f) (typep f 'error))
-                   (mapgroup
-                    (lambda (r)
-                      (room-redact-all r control group target-user reason))
-                             control group))
+    (mapgroup
+     (lambda (r)
+       (room-redact-all r control group target-user reason))
+     control group)
      (v:info :redact-all "exiting redact all")))
 
 (define-command-parser redact (name rest room-id event)

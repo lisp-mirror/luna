@@ -8,17 +8,17 @@
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission in ~a to ban users." (cl-matrix:username cl-matrix:*account*) target)))
 
-  (cl-matrix:room-ban target-user reason target))
+  (cl-matrix:room-ban target-user reason target)
+  target)
 
 (define-step ban (control group sender target-user reason)
   (unless (has-power-p control sender "ban")
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to ban in this room." sender)))
 
-  (remove-if-not (lambda (f) (typep f 'error))
-   (mapgroup (luna-lambda (r)
-               (room-ban r control group target-user reason))
-              control group)))
+  (mapgroup (luna-lambda (r)
+              (room-ban r control group target-user reason))
+            control group))
 
 (define-command-parser ban (name rest room-id event)
   (declare (ignore name))
