@@ -4,7 +4,7 @@
 (in-package #:luna.test)
 
 (define-test redact-all
-
+  :parent luna-test
   (with-fixtures '(luna.framework::*debug-execution*)
     (setf luna.framework::*debug-execution* t)
     (cl-matrix:with-account (*luna-user*)

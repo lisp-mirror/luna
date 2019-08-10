@@ -42,6 +42,7 @@ will return t if the predicate was matched, nil if there was a timeout. "
 
 (define-test create-group
 
+  :parent luna-test
   ;; this tests normal operation of the command, we also need tests for unexpected/malicious things.
   (with-fixtures '(luna.framework::*debug-execution*)
     (setf luna.framework::*debug-execution* t)

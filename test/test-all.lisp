@@ -5,7 +5,7 @@
 
 (define-test luna-test
 
-  (prepare-synapse))
+)
 
 (defun test-all (&key (report 'parachute:plain))
   (test 'luna-test :report report))

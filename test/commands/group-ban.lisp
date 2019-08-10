@@ -4,7 +4,7 @@
 (in-package #:luna.test)
 
 (define-test group-ban
-
+  :parent luna-test
   (cl-matrix:with-account (*luna-user*)
     (multiple-value-bind (rooms listener) (create-group-and-start-listening "ban-test" 3)
 
