@@ -16,7 +16,7 @@
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to ban in this room." sender)))
 
-  (mapgroup (luna-lambda (r)
+  (mapgroup (lambda (r)
               (room-ban r control group target-user reason))
             control group))
 

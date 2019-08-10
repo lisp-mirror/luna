@@ -13,8 +13,7 @@
          (v:info :events events)
          (mapc 
           (lambda (e)
-            (cl-matrix:room-redact target (jsown:val e "event_id") :reason reason)
-            (v:info :redact-all "processing event"))
+            (cl-matrix:room-redact target (jsown:val e "event_id") :reason reason))
           events))
     target))
 
@@ -23,12 +22,10 @@
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to redact in this room." sender)))
 
-  (prog1
-    (mapgroup
-     (lambda (r)
-       (room-redact-all r control group target-user reason))
-     control group)
-     (v:info :redact-all "exiting redact all")))
+  (mapgroup
+   (lambda (r)
+     (room-redact-all r control group target-user reason))
+   control group))
 
 (define-command-parser redact (name rest room-id event)
   (declare (ignore name))
