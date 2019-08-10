@@ -34,12 +34,14 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
                       (lambda (,room-id ,event-id ,@more-args)
                         ,@body))))
 
-(defun defer-report (channel parser-name rest room-id event)
-  (lparallel:submit-task channel
-    (luna-lambda ()
-      (funcall (get-reporter parser-name)
-               room-id (jsown:val event "event_id")
-               (funcall (get-parser parser-name) parser-name rest room-id event)))))
+(defun defer-report (parser-name rest room-id event)
+  (let ((*channel* (lparallel:make-channel)))
+    (declare (special *channel*))
+    (lparallel:submit-task *channel*
+     (luna-lambda ()
+       (funcall (get-reporter parser-name)
+                room-id (jsown:val event "event_id")
+                (funcall (get-parser parser-name) parser-name rest room-id event))))))
 
 (defun report-summary (control-id summary &optional event-id)
   (cl-matrix:msg-send summary control-id :type "m.notice" :event-id event-id

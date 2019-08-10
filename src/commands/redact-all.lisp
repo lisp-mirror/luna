@@ -25,8 +25,9 @@
 
   (prog1
     (remove-if-not (lambda (f) (typep f 'error))
-                   (mapgroup (luna-lambda (r)
-                               (room-redact-all r control group target-user reason))
+                   (mapgroup
+                    (lambda (r)
+                      (room-redact-all r control group target-user reason))
                              control group))
      (v:info :redact-all "exiting redact all")))
 

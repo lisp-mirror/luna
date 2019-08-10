@@ -60,7 +60,7 @@ uses lparallel:pmapcar. "
     (unless luna.group
       (error 'luna-error :description (format nil "~&there is no group named ~a for this room ~a." group-name control-room)))
     (let ((rooms (jsown:val luna.group "target_rooms")))
-      (lparallel:pmapcar function rooms))))
+      (mapcar function rooms))))
 
 (defun control-present-in-target-p (group-name control-id target-id)
   "true if the control room is present in the luna.group event"

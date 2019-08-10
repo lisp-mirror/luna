@@ -15,4 +15,4 @@
 (defun luna-command (name rest room-id event)
   (v:debug :command-listener "Got command in ~a:~a ~a" room-id name rest)
   ;; this needs hanlder-case around it.
-  (defer-report *channel* name rest room-id event))
+  (defer-report name rest room-id event))

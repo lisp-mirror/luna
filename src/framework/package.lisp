@@ -13,6 +13,7 @@
    #:define-step
    #:get-step
    #:intern-step
+   #:step-result
 
    #:*debug-execution*
 

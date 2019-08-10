@@ -3,20 +3,16 @@
 
 (in-package #:luna.framework)
 
-(defvar *channel* nil)
-
 (defun make-luna-kernal (&optional (workers 8))
   (setf lparallel:*kernel*
         (lparallel:make-kernel workers :name "luna kernal")))
 
 (defun sync-listener (seconds sync-token)
-  (let ((*channel* (lparallel:make-channel)))
-    (declare (special *channel*))
-    (loop :do
-         (multiple-value-bind (sync-data next-token) (cl-matrix:account-sync :since sync-token)
-           (cl-matrix.base-events:issue-sync-event sync-data)
-           (setf sync-token next-token))
-         (sleep seconds))))
+  (loop :do
+       (multiple-value-bind (sync-data next-token) (cl-matrix:account-sync :since sync-token)
+         (cl-matrix.base-events:issue-sync-event sync-data)
+         (setf sync-token next-token))
+       (sleep seconds)))
 
 ;; get sync token from config when it first starts up
 (defun make-listener (sync-token sync-rate)
@@ -52,3 +48,4 @@
            (declare (special *debug-execution*))
            (cl-matrix:with-account (,account-sym)
              ,@body))))))
+
