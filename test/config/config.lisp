@@ -11,3 +11,10 @@
   (setf *luna-user* (cl-matrix:login "@luna:localhost" "lunapass" :homeserver "localhost:8008" :scheme "http://"))
   (setf *mod-user* (cl-matrix:login "@coolmod:localhost" "coolmodpass" :homeserver "localhost:8008" :scheme "http://"))
   (setf *normal-user* (cl-matrix:login "@user:localhost" "pass" :homeserver "localhost:8008" :scheme "http://")))
+
+(defun prepare-luna ()
+  (luna:make-luna-kernal))
+
+(defun prepare-all ()
+  (prepare-luna)
+  (prepare-synapse))
