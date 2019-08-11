@@ -53,12 +53,16 @@
 }
 |#
 
+(defun get-group (room group-name)
+  (let ((luna.group (cl-matrix:room-state room +state-type+ group-name)))
+    (unless luna.group
+      (error 'luna-error :description (format nil "~&there is no group named ~a for this room ~a." group-name room)))
+    luna.group))
+
 (defun mapgroup (function control-room group-name)
   "calls the function for each room-id in the group specified in the control-room with group-name
 uses lparallel:pmapcar. "
-  (let ((luna.group (cl-matrix:room-state control-room +state-type+ group-name)))
-    (unless luna.group
-      (error 'luna-error :description (format nil "~&there is no group named ~a for this room ~a." group-name control-room)))
+  (let ((luna.group (get-group control-room group-name)))
     (let ((rooms (jsown:val luna.group "target_rooms")))
       (mapcar function rooms))))
 

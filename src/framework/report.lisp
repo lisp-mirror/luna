@@ -63,5 +63,6 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defun report-summary (control-id summary &optional event-id)
   (cl-matrix:msg-send summary control-id :type "m.notice" :event-id event-id
-                      :format "org.matrix.custom.html" :formatted-body summary)
+                      :format "org.matrix.custom.html"
+                      :formatted-body (cl-strings:replace-all summary (coerce '(#\Newline) 'string) "<br/>"))
   (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))

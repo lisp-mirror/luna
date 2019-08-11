@@ -13,5 +13,6 @@
                                   ((:file "create-group")
                                    (:file "group-ban")
                                    (:file "redact-all")
-                                   (:file "help")))
+                                   (:file "help")
+                                   (:file "list")))
 ))))

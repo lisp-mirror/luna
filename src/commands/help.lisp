@@ -12,9 +12,9 @@ Will list all the known commands and related synopsis."
   (let ((command (car (cl-strings:split rest))))
     (with-output-to-string (s)
       (cond ((and (string-equal "help" name) (string= "" command))
-             (print (list-parsers-with-synopsis) s))
+             (write-string (list-parsers-with-synopsis) s))
 
             ((string= "" (get-help command))
              (format s "Can't find help for command ~a" command))
 
-            (t (print (get-help command) s))))))
+            (t (write-string (get-help command) s))))))

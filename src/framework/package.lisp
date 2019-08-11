@@ -32,6 +32,7 @@
    #:get-user-from-levels
    #:format-indent
    #:ensure-left-margin
+   #:room-preview
 
    ;; command-parser.lisp
    #:transform-parser-designator
