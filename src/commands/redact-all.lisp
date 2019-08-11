@@ -28,6 +28,10 @@
    control group))
 
 (define-command-parser redact (name rest room-id event)
+  "GROUP TARGET-USER [REASON...]
+redact all messages sent by the user in every room in the group
+
+This command will take some time to execute and shouldn't be used if the user has been in the room for longer than a week unless you want to wait a long time."
   (declare (ignore name))
   (cl-ppcre:register-groups-bind (group-name target-user reason)
       ("^(\\S+)\\s+(\\S+)(?:\\s+(.+))?" rest)

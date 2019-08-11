@@ -8,11 +8,10 @@
 
 (defhook m.text issue-luna-command ((account cl-matrix:account) room-id event)
   (declare (ignore account))
-  (cl-ppcre:register-groups-bind (name rest) ("^\!luna\\s+(\\S*)\\s*(.*)" (jsown:filter event "content" "body"))
+  (cl-ppcre:register-groups-bind (name rest) ("^\!luna\\s+(\\S+)\\s*(.*)" (jsown:filter event "content" "body"))
     (when name
       (luna-command name rest room-id event))))
 
 (defun luna-command (name rest room-id event)
   (v:debug :command-listener "Got command in ~a:~a ~a" room-id name rest)
-  ;; this needs hanlder-case around it.
   (defer-report name rest room-id event))

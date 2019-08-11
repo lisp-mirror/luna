@@ -10,19 +10,23 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defun default-reporter (target event-id result/s)
   (let ((message
-         (if (bad-resultp result/s)
-             (with-output-to-string (s)
-               (format s "<font color=\"red\">Failed</font> with condition:~%~a" (cdr result/s)))
-             (let ((bad-rooms (remove-if-not #'bad-resultp result/s)))
-               (cond ((null bad-rooms)
-                      (with-output-to-string (s)
-                        (format s "<font color=\"green\">Finished</font> Succesfully")))
+         (cond ((bad-resultp result/s)
+                (with-output-to-string (s)
+                  (format s "<font color=\"red\">Failed</font> with condition:~%~a" (cdr result/s))))
 
-                     (t (with-output-to-string (s)
-                          (format s "<font color=\"yellow\">Contested</font> with ~d conditions:" (length bad-rooms))
-                          (dolist (r bad-rooms)
-                            (format-indent 4 s "~%~a" (room-preview (car r)))
-                            (format-indent 8 s "~%~a" (cdr r))))))))))
+               ((stringp result/s) result/s)
+
+               (t
+                (let ((bad-rooms (remove-if-not #'bad-resultp result/s)))
+                  (cond ((null bad-rooms)
+                         (with-output-to-string (s)
+                           (format s "<font color=\"green\">Finished</font> Succesfully")))
+
+                        (t (with-output-to-string (s)
+                             (format s "<font color=\"yellow\">Contested</font> with ~d conditions:" (length bad-rooms))
+                             (dolist (r bad-rooms)
+                               (format-indent 4 s "~%~a" (room-preview (car r)))
+                               (format-indent 8 s "~%~a" (cdr r)))))))))))
     (report-summary target message event-id)))
 
 (defun intern-reporter (name reporter)
@@ -36,16 +40,19 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defmacro define-reporter (name (room-id event-id &rest more-args) &body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (intern-reporter ,name
+     (intern-reporter ',name
                       (lambda (,room-id ,event-id ,@more-args)
                         ,@body))))
 
 (defmacro with-generic-error-handling (category &body body)
-  `(handler-case (progn ,@body)
-     (error (c) (v:error ,category c))))
+  `(handler-bind ((error (lambda (c)
+                               (unless *debug-execution* (invoke-restart 'return-and-log c)))))
+     (block restart-block
+       (restart-case (progn ,@body)
+         (return-and-log (c) (v:error ,category c) (return-from restart-block))))))
 
 (defun defer-report (parser-name rest room-id event)
-  (let ((*channel* (lparallel:make-channel)))
+  (let ((*channel* (lparaqllel:make-channel)))
     (declare (special *channel*))
     (lparallel:submit-task *channel*
       (luna-lambda ()

@@ -39,6 +39,10 @@
    #:intern-parser
    #:define-command-parser
 
+   #:get-help
+   #:get-synopsis
+   #:list-parsers-with-synopsis
+
    ;; listener.lisp
    #:*channel*
    #:make-listener

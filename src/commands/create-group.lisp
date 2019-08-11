@@ -30,6 +30,8 @@
 ;;; !luna add-to-group cheesewheel &rest
 ;;; could do reprots here? passing the conditions promise to them?
 (define-command-parser add-to-group (name rest room-id event)
+  "GROUP TARGET-ROOMS...
+add the given rooms to the group."
   (declare (ignore name))
   (cl-ppcre:register-groups-bind (group-name targets)
       ("^(\\S+)\\s+((?:\\s*\\S+)+)" rest)

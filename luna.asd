@@ -12,5 +12,6 @@
                                   :components
                                   ((:file "create-group")
                                    (:file "group-ban")
-                                   (:file "redact-all")))
+                                   (:file "redact-all")
+                                   (:file "help")))
 ))))

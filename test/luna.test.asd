@@ -10,4 +10,5 @@
                (:module "commands"
                         :components
                         ((:file "group-ban")
-                         (:file "redact-all")))))
+                         (:file "redact-all")
+                         (:file "help")))))
