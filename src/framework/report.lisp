@@ -52,7 +52,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
          (return-and-log (c) (v:error ,category c) (return-from restart-block))))))
 
 (defun defer-report (parser-name rest room-id event)
-  (let ((*channel* (lparaqllel:make-channel)))
+  (let ((*channel* (lparallel:make-channel)))
     (declare (special *channel*))
     (lparallel:submit-task *channel*
       (luna-lambda ()
