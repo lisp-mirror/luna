@@ -91,9 +91,10 @@ uses lparallel:pmapcar. "
   "edits the room state of the control room and adds the targets to the group"
   (declare (type string group-name control))
   (let* ((existing-state (cl-matrix:room-state control +state-type+ group-name))
-         (new-targets (append targets
-                             (and (jsown:keyp existing-state "target_rooms")
-                                  (jsown:val existing-state "target_rooms")))))
+         (new-targets (and (jsown:keyp existing-state "target_rooms")
+                           (jsown:val existing-state "target_rooms"))))
+    (dolist (target targets)
+      (pushnew target new-targets :test #'string=))
     (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
      cl-matrix:*account* control +state-type+ group-name
      (jsown:to-json

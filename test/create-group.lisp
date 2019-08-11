@@ -40,6 +40,12 @@ will return t if the predicate was matched, nil if there was a timeout. "
    (let ((e (jsown:val e "content")))
      (jsown:keyp e "m.relates_to")))
 
+(defun target-equal (targets1 targets2)
+  (let ((equal? t))
+    (loop :while equal? :for r :in targets1 :do
+         (setf equal? (member r targets2 :test #'string=)))
+    (and equal? (= (length targets1) (length targets2)))))
+
 (define-test create-group
 
   :parent luna-test
@@ -63,7 +69,7 @@ will return t if the predicate was matched, nil if there was a timeout. "
 
           ;; assert that the group has been created properly
           (let ((group-event (cl-matrix:room-state control-room luna::+state-type+ test-group)))
-            (is equal targets (jsown:val group-event "target_rooms")))
+            (is target-equal targets (jsown:val group-event "target_rooms")))
 
           (dolist (target targets)
             (is string= control-room (jsown:val (cl-matrix:room-state target luna::+state-type+ test-group) "control_room")
@@ -99,7 +105,31 @@ will return t if the predicate was matched, nil if there was a timeout. "
           (let ((group-event (cl-matrix:room-state bad-target luna::+state-type+ "test-group")))
             (false group-event))
 
-          (bt:destroy-thread listener))))))
+          (bt:destroy-thread listener)))))
+
+  (define-test add-to-group
+
+    (with-fixtures '(luna.framework::*debug-execution*)
+    (setf luna.framework::*debug-execution* t)
+    (cl-matrix:with-account (*luna-user*)
+      (multiple-value-bind (rooms listener) (create-group-and-start-listening "add-test" 2 :sync-rate 0.2)
+
+        (let ((new-room (cl-matrix:room-create))
+              (control (car rooms))
+              (before-token (cl-matrix:now-token)))
+            
+           (send-command control (format nil "!luna add-to-group ~a ~{~a ~}" "add-test"
+                                    (list new-room new-room)))
+           (true (wait-until control #'replyp :sync-token before-token :timeout 120 :sleep-time 10))
+
+           (let ((group-event (cl-matrix:room-state control luna::+state-type+ "add-test")))
+             (true (member new-room (jsown:val group-event "target_rooms") :test #'string=))
+             (true (member (cadr rooms) (jsown:val group-event "target_rooms") :test #'string=))
+             (is = 1 (length (remove-if-not (lambda (r) (string= r new-room))
+                                            (jsown:val group-event "target_rooms")))
+                 "the new room has been added twice instead of once.")))
+        
+        (bt:destroy-thread listener))))))
 
 (defun clean ()
   (dolist (listener *listeners*)
