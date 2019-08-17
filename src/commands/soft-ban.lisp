@@ -2,14 +2,7 @@
    Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (in-package #:luna)
-;;; alternativly we could put the luna.soft_ban inside the control room and have an affected rooms, has a much larger overhead when someone joins a room, all the groups will have to be downloaded and checked.
 (defvar *luna.soft-ban* "luna.soft_ban")
-;; might want to include a group-name to report to in the soft ban so it can alert when it's soft banned someone.
-;; and if it's been attempted and failed.
-;; it needs to be a group so that the bot can verify that the contorl room is still cotnrolilng the target
-;; so someone doesn't use this as a vector to spam the control room.
-
-;; we need to include the event-id of the original command inside the soft-ban so the reporter can do things.
 
 (declaim (inline user->state-key))
 (defun user->state-key (user)
@@ -62,18 +55,14 @@ See define-step"
 
         (if control
             (cond ((bad-resultp result)
-                   (report-summary control
-                                   (with-output-to-string (s)
-                                     (write-string (room-preview room-id) s)
-                                     (format-indent 4 "~%Failed to ban ~a after they joined." target-user)
-                                     (format-indent 4 "~%~a" (cdr result)))
-                                   command))
+                   (with-stream-to-report (s control command)
+                     (write-string (room-preview room-id) s)
+                     (format-indent 4 "~%Failed to ban ~a after they joined." target-user)
+                     (format-indent 4 "~%~a" (cdr result))))
 
-                  (t (report-summary control
-                                     (with-output-to-string (s)
-                                       (write-string (room-preview room-id) s)
-                                       (format s "~%Banned ~a after they joined." target-user))
-                                     command)))
+                  (t (with-stream-to-report (s control command)
+                       (write-string (room-preview room-id) s)
+                       (format s "~%Banned ~a after they joined." target-user))))
             (when (jsown:keyp luna.soft_ban "report_to")
               (v:error :check-soft-ban
                        "unable to report to ~a after enforcing soft_ban, target is missing from the control rooms group."
@@ -111,5 +100,4 @@ ban the user from all rooms in the group, without forcing them to force join."
       (funcall #'group-soft-ban room-id group-name (jsown:val event "event_id") (jsown:val event "sender")
                 target-user reason))))
 
-;;; ok these comments have fucked slime somehow
-;;; ok use hooks.lisp
+;;; see hooks.lisp for the join hook.

@@ -26,6 +26,7 @@
 
    #:with-defered-task
    #:with-reporting
+   #:with-stream-to-report
    
    ;; room-ops.lisp
    #:has-power-p

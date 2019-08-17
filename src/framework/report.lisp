@@ -75,4 +75,12 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
                       :formatted-body (cl-strings:replace-all summary (coerce '(#\Newline) 'string) "<br/>"))
   (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))
 
+(defmacro with-stream-to-report ((var room-id &optional event-id) &body body)
+  "wraps with-output-to-string and report-summary, creates an output stream to write to and then sends the string to the room specified.
+
+See report-summary"
+  `(report-summary ,room-id (with-output-to-string (,var)
+                             ,@body)
+                  ,event-id))
+
 

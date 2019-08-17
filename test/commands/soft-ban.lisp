@@ -18,6 +18,7 @@
               (send-command (car rooms) (format nil  "!luna soft-ban ~a ~a" group-name (cl-matrix:username *normal-user*)))
               (true (wait-until (car rooms) #'replyp :sync-token before-token)))
 
+            (sleep 0.1)
             (dolist (target (cddr rooms))
               (true (null (string= "ban"
                                    (let ((membership (cl-matrix:room-state target "m.room.member"
