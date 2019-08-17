@@ -33,6 +33,7 @@
    #:format-indent
    #:ensure-left-margin
    #:room-preview
+   #:membership-change-p
 
    ;; command-parser.lisp
    #:transform-parser-designator

@@ -11,4 +11,5 @@
                         :components
                         ((:file "group-ban")
                          (:file "redact-all")
+                         (:file "soft-ban")
                          (:file "help")))))

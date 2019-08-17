@@ -2,7 +2,7 @@
    Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defpackage luna.hooks
-  (:use #:cl #:method-hooks #:cl-matrix.base-events #:luna.framework))
+  (:use #:cl #:method-hooks #:cl-matrix.base-events #:luna.framework #:luna))
 
 (in-package #:luna.hooks)
 
@@ -15,3 +15,10 @@
 (defun luna-command (name rest room-id event)
   (v:debug :command-listener "Got command in ~a:~a ~a" room-id name rest)
   (defer-report name rest room-id event))
+
+(defhook room-event soft-ban-join-hook ((account cl-matrix:account) room-id data)
+         (declare (ignore account))
+         (when (and (string= "m.room.member" (jsown:val data "type")) (luna.framework::membership-change-p data))
+           (let ((membership (jsown:filter data "content" "membership")))
+             (when (string= membership "join")
+               (luna::check-soft-ban room-id (jsown:val data "sender"))))))

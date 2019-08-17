@@ -3,4 +3,9 @@
   (:export
    #:make-listener
    #:make-luna-kernal
-   #:start-listening))
+   #:start-listening
+
+   #:*luna.soft-ban*
+
+   #:check-soft-ban
+   ))

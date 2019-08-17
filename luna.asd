@@ -3,10 +3,10 @@
   :author "Gnuxie <Gnuxie@protonmail.com>"
   :licence "AGPL v3+"
   :depends-on ("luna.framework")
+  :serial t
   :components ((:module "src"
                         :components
                         ((:file "package")
-                         (:file "hooks")
                          (:file "group-management")
                          (:module "commands"
                                   :components
@@ -14,5 +14,8 @@
                                    (:file "group-ban")
                                    (:file "redact-all")
                                    (:file "help")
-                                   (:file "list")))
+                                   (:file "list")
+                                   (:file "soft-ban")))
+                         (:file "hooks")
+
 ))))

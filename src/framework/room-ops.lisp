@@ -96,3 +96,14 @@ See has-power-p"
 #|
 (cl-matrix:msg-send "<img src=\"mxc://matrix.org/fkUyAnpRqaCayYGPTLIKibfg\" height=\"32\" alt\"room avatar\" vertical-align=\"middle\"> Cool Room With Pic (<code>!HPFFIiVtELwKSMeato:matrix.org</code>)" "!HPFFIiVtELwKSMeato:matrix.org" :format "org.matrix.custom.html" :formatted-body "<img src=\"mxc://matrix.org/fkUyAnpRqaCayYGPTLIKibfg\" height=\"32\" alt\"room avatar\" vertical-align=\"middle\"> Cool Room With Pic (<code>!HPFFIiVtELwKSMeato:matrix.org</code>)")
 |#
+
+(defun membership-change-p (e)
+  (cond ((and (jsown:keyp e "unsigned") (jsown:keyp e "prev_content"))
+         (not (equal (jsown:filter e "content" "membership")
+                     (jsown:filter e "unsigned" "prev_content" "membership"))))
+
+        ((and (jsown:keyp e "unsigned") (not (jsown:keyp e "prev_content"))) t)
+
+        (t t)))
+
+
