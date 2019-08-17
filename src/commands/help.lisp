@@ -17,4 +17,6 @@ Will list all the known commands and related synopsis."
             ((string= "" (get-help command))
              (format s "Can't find help for command ~a" command))
 
-            (t (write-string (get-help command) s))))))
+            (t (write-string (get-help command) s)))
+
+      (format s "~%~%(λ () `(<a href=\"https://thufie.lain.haus/NPL.html\">🏴NON-VIOLENT PUBLIC LICENSE</a> . https://gitlab.com/Gnuxie/luna))"))))
