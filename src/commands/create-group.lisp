@@ -16,9 +16,9 @@
   target)
 
 (define-step add-to-group (control group sender &rest targets)
-  (unless (can-send-state-p control sender +state-type+)
+  (unless (can-send-state-p control sender *luna.group*)
     (error 'luna-permission-error :description (format nil "~a doesn't have permission to send ~a events"
-                                                       sender +state-type+)))
+                                                       sender *luna.group*)))
   (let ((results
          (lparallel:pmapcar
           (luna-lambda (r)

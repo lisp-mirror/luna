@@ -1,6 +1,6 @@
 # luna.soft_ban
 
-A soft ban is a state event using the key
+A soft ban is a state event.
 
 ## state_key
  - "user_id"(bold) ``string`` The id of the target user to be soft banned. This is a standard matrix user id without the ``@``.

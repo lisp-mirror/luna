@@ -6,6 +6,7 @@
    #:start-listening
 
    #:*luna.soft-ban*
-
+   #:*luna.group*
+   
    #:check-soft-ban
    ))

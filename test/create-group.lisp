@@ -68,11 +68,11 @@ will return t if the predicate was matched, nil if there was a timeout. "
                 "timed out waiting for luna to reply to group command")
 
           ;; assert that the group has been created properly
-          (let ((group-event (cl-matrix:room-state control-room luna::+state-type+ test-group)))
+          (let ((group-event (cl-matrix:room-state control-room luna:*luna.group* test-group)))
             (is target-equal targets (jsown:val group-event "target_rooms")))
 
           (dolist (target targets)
-            (is string= control-room (jsown:val (cl-matrix:room-state target luna::+state-type+ test-group) "control_room")
+            (is string= control-room (jsown:val (cl-matrix:room-state target luna:*luna.group* test-group) "control_room")
                 "the control room is not set for each of the targets"))
 
           (bt:destroy-thread listener)))))
@@ -102,7 +102,7 @@ will return t if the predicate was matched, nil if there was a timeout. "
                 "timed out waiting for luna to reply to group command")
 
           ;; assert that the bad-target has not been added to the group by the bot
-          (let ((group-event (cl-matrix:room-state bad-target luna::+state-type+ "test-group")))
+          (let ((group-event (cl-matrix:room-state bad-target luna:*luna.group* "test-group")))
             (false group-event))
 
           (bt:destroy-thread listener)))))
@@ -122,7 +122,7 @@ will return t if the predicate was matched, nil if there was a timeout. "
                                     (list new-room new-room)))
            (true (wait-until control #'replyp :sync-token before-token :timeout 120 :sleep-time 10))
 
-           (let ((group-event (cl-matrix:room-state control luna::+state-type+ "add-test")))
+           (let ((group-event (cl-matrix:room-state control luna:*luna.group* "add-test")))
              (true (member new-room (jsown:val group-event "target_rooms") :test #'string=))
              (true (member (cadr rooms) (jsown:val group-event "target_rooms") :test #'string=))
              (is = 1 (length (remove-if-not (lambda (r) (string= r new-room))
