@@ -1,0 +1,28 @@
+# luna.soft_ban
+
+A soft ban is a state event using the key
+
+## state_key
+ - "user_id"(bold) ``string`` The id of the target user to be soft banned. This is a standard matrix user id without the ``@``.
+ e.g. ``@cl-matrix:matrix.org`` will become ``cl-matrix:matrix.org`` in the state key.
+ We have to do this because of rule 9 in the state event "Authorisation Rules"(https://matrix.org/docs/spec/rooms/v1#authorization-rules).
+ 
+## content
+
+### required
+
+
+ - "activep"(bold) ``boolean`` Whether the soft ban is still in effect[1].
+
+[1] State events are immutable and so it is impossible to tell whether the ban is still in effect without this.
+
+### optional
+
+ - "reason"(bold) ``string`` The reason to use on the ban event when the target user joins.
+
+### extra
+
+ - "report_to"(bold) ``string`` The luna.group to report to when the target user joins and is banned[2].
+ - "command"(bold) ``string`` The event id of the command issuing the soft_ban to be referenced in a report.
+ 
+[2] If you are implementing this functionality, it is essential that you check the effective room (the room the target has joined) is in the list of target_rooms for the luna.group in the specified control_room in the luna.group for the effective room. Otherwise it may be possible to spam any other room which luna is in.
