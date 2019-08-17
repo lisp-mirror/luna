@@ -15,7 +15,7 @@
             (cl-matrix:with-account (*normal-user*)
               (cl-matrix:room-join already-joined))
             (let ((before-token (cl-matrix:now-token)))
-              (send-command (car rooms) (format nil  "!luna soft-ban ~a ~a" group-name (cl-matrix:username *normal-user*)))
+              (send-command (car rooms) (format nil  "!luna ban ~a ~a" group-name (cl-matrix:username *normal-user*)))
               (true (wait-until (car rooms) #'replyp :sync-token before-token)))
 
             (sleep 0.1)

@@ -20,9 +20,9 @@
               (room-ban r control group target-user reason))
             control group))
 
-(define-command-parser ban (name rest room-id event)
+(define-command-parser hard-ban (name rest room-id event)
   "GROUP TARGET-USER [REASON...]
-ban the user from all rooms in the group, will cause them to \"force join\"."
+USE BAN INSTEAD. ban the user from all rooms in the group, will cause them to \"force join\"."
   (declare (ignore name))
   (cl-ppcre:register-groups-bind (group-name target-user reason)
       ("^(\\S+)\\s+(\\S+)(?:\\s+(.+))?" rest)

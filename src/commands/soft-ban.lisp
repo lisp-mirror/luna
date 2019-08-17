@@ -90,9 +90,9 @@ See define-step"
               (room-soft-ban r control group event-id target-user reason))
             control group))
 
-(define-command-parser soft-ban (name rest room-id event)
+(define-command-parser ban (name rest room-id event)
   "GROUP TARGET-USER [REASON...]
-ban the user from all rooms in the group, without forcing them to force join."
+ban the user from all rooms in the group, without them force joining."
   (declare (ignore name))
   (cl-ppcre:register-groups-bind (group-name target-user reason)
       ("^(\\S+)\\s+(\\S+)(?:\\s+(.+))?" rest)
