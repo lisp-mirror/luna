@@ -1,7 +1,7 @@
 (asdf:defsystem "luna"
   :version "0.0"
   :author "Gnuxie <Gnuxie@protonmail.com>"
-  :licence "AGPL v3+"
+  :licence "NON-VIOLENT PUBLIC LICENSE v1+"
   :depends-on ("luna.framework")
   :serial t
   :components ((:module "src"
