@@ -16,9 +16,9 @@ Type `!luna help` to see a list of commands then for example `!luna help ban` to
 
 This can be done by using `/devtools` in riot -> `explore room state` -> `m.room.power_levels` -> edit.
 
-Add them in the events section of `content` and be very careful because you can break your room if you do something silly.
+Add them in the `events` section of `content` and be very careful because you can break your room if you do something silly.
 
-2. Make luna able to send those events in the room (and do anything else like ban people). 
+2. Give luna the power level needed to send those events in the room (and to do anything else like ban people). 
 
 As of writing there is no reason at all for luna to be over pl 50, however something like 60 is recommended if you don't want mods to be able to interfere with the luna state events.
 
