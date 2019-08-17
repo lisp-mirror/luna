@@ -98,6 +98,7 @@ See has-power-p"
 |#
 
 (defun membership-change-p (e)
+  "T if the membership part of an m.room.member event actually changed."
   (cond ((and (jsown:keyp e "unsigned") (jsown:keyp e "prev_content"))
          (not (equal (jsown:filter e "content" "membership")
                      (jsown:filter e "unsigned" "prev_content" "membership"))))

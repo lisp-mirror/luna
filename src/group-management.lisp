@@ -111,7 +111,9 @@ uses lparallel:pmapcar. "
 
 (defmacro define-target-step (name (target-room control-room group-name &rest args) &body body)
   "create a step that will assert that the target-room is controlled by control-room before executing the body
-control-room and group-name are declared to be ignorable."
+control-room and group-name are declared to be ignorable.
+
+See define-step"
   (multiple-value-bind (body declerations docstring) (alexandria:parse-body body)
     (push `(declare (ignorable ,control-room ,group-name)) declerations)
     `(define-step ,name (,target-room ,control-room ,group-name ,@args)

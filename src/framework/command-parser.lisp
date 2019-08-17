@@ -48,6 +48,9 @@ because package complicated things a lot.")
         "")))
 
 (defun list-parsers-with-synopsis ()
+  "used for help pages, doc purposes.
+
+reutrns a string with the synopsis messages for all interned commands."
   (with-output-to-string (s)
     (maphash (lambda (k v)
                (format s "~a: ~a~%~%" (string-downcase k) (get-synopsis v)))
@@ -70,8 +73,6 @@ it is possible to tell if it was called as foo or as baz.
 
 The docstring supplied to this macro will be used as the help message for a given command. The paragraph (string seperated by two line breaks) of docstring will be used as the synopsis when listing all commands.
 
-See make-command-job
-See luna-command
 See intern-parser
 See get-parser"
   (multiple-value-bind (new-body declarations docstring) (alexandria:parse-body body :documentation t)

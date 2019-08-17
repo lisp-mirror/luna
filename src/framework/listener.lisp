@@ -14,8 +14,8 @@
          (setf sync-token next-token))
        (sleep seconds)))
 
-;; get sync token from config when it first starts up
 (defun make-listener (sync-token sync-rate)
+  "return a function that will serve as the listener"
   (let ((sync-token sync-token))
     (v:info :listener "starting listener ~a" sync-token)
     (lambda ()

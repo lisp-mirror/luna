@@ -5,10 +5,23 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 (defvar *report-table* (make-hash-table :test 'equal))
 
 (defun bad-resultp (thing)
+  "a bad result is a list that looks like this
+(cons room-id-error-was-singaled-in condition)
+
+See define-step"
   (and (listp thing)
        (and (typep (cdr thing) 'error))))
 
 (defun default-reporter (target event-id result/s)
+  "The default repoter
+
+if results is a string, then return the string to the given room-id as passed.
+
+if results is a list, report all the bad results in the list to the given room-id as contested.
+
+if results is a bad-result then report to the given room as failed.
+
+See bad-resultp"
   (let ((message
          (cond ((bad-resultp result/s)
                 (with-output-to-string (s)
