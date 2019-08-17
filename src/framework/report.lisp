@@ -38,10 +38,10 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
   (or (gethash (transform-parser-designator name) *report-table*)
       #'default-reporter))
 
-(defmacro define-reporter (name (room-id event-id &rest more-args) &body body)
+(defmacro define-reporter (name (&rest lambda-list) &body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (intern-reporter ',name
-                      (lambda (,room-id ,event-id ,@more-args)
+                      (lambda ,lambda-list
                         ,@body))))
 
 (defmacro with-generic-error-handling (category &body body)
@@ -51,18 +51,28 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
        (restart-case (progn ,@body)
          (return-and-log (c) (v:error ,category c) (return-from restart-block))))))
 
-(defun defer-report (parser-name rest room-id event)
-  (let ((*channel* (lparallel:make-channel)))
-    (declare (special *channel*))
-    (lparallel:submit-task *channel*
+(defmacro with-defered-task (log-category &body task)
+  `(let ((*channel* (lparallel:make-channel)))
+     (declare (special *channel*))
+     (lparallel:submit-task *channel*
       (luna-lambda ()
-        (with-generic-error-handling :reporter
-          (funcall (get-reporter parser-name)
-                   room-id (jsown:val event "event_id")
-                   (funcall (get-parser parser-name) parser-name rest room-id event)))))))
+        (with-generic-error-handling ,log-category
+          ,@task)))))
+
+(defmacro with-reporting (reporter-designator &rest args)
+  `(funcall (get-reporter ,reporter-designator)
+            ,@args))
+
+(defun defer-report (parser-name rest room-id event)
+  (with-defered-task :reporter
+      (with-reporting parser-name
+        room-id (jsown:val event "event_id")
+        (funcall (get-parser parser-name) parser-name rest room-id event))))
 
 (defun report-summary (control-id summary &optional event-id)
   (cl-matrix:msg-send summary control-id :type "m.notice" :event-id event-id
                       :format "org.matrix.custom.html"
                       :formatted-body (cl-strings:replace-all summary (coerce '(#\Newline) 'string) "<br/>"))
   (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))
+
+

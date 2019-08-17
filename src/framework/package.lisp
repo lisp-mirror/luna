@@ -23,6 +23,9 @@
    #:intern-reporter
    #:defer-report
    #:bad-resultp
+
+   #:with-defered-task
+   #:with-reporting
    
    ;; room-ops.lisp
    #:has-power-p

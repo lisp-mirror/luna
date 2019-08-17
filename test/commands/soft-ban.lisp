@@ -43,7 +43,12 @@
                                                                (incf count)))
                                                       (= count 3)))
                                 :sync-token before-token)
-                    "the normal user was not banned when joining a room they were soft banned from."))
+                    "the normal user was not banned when joining a room they were soft banned from.")
+
+              (true (wait-until (car rooms) (lambda (e)
+                                              (string= "m.room.message" (jsown:val e "type")))
+                                :sync-token before-token)
+                    "the report has not been sent to the control."))
 
             (false (jsown:val
                     (cl-matrix:room-state not-joined-yet luna:*luna.soft-ban*

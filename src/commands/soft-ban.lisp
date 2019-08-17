@@ -9,13 +9,27 @@
 ;; it needs to be a group so that the bot can verify that the contorl room is still cotnrolilng the target
 ;; so someone doesn't use this as a vector to spam the control room.
 
-(defun soft-ban (room-id user-id &optional reason)
-  (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
-   cl-matrix:*account* room-id *luna.soft-ban* (subseq user-id 1)
-   (jsown:to-json (remove-if #'null `(:obj ("activep" . t) ,(and reason `("reason" . ,reason)))))))
+;; we need to include the event-id of the original command inside the soft-ban so the reporter can do things.
 
-(defun check-soft-ban (room-id user-id)
-  (let ((luna.soft-ban (cl-matrix:room-state room-id *luna.soft-ban* (subseq user-id 1))))
+(declaim (inline user->state-key))
+(defun user->state-key (user)
+  (declare (type string user))
+  (subseq user 1))
+
+(defun soft-ban (room-id user-id &key reason report-to command)
+  (flet ((safe-kv (k v) (and v `(,k . ,v))))
+    (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
+     cl-matrix:*account* room-id *luna.soft-ban* (user->state-key user-id)
+     (jsown:to-json (remove-if #'null `(:obj ("activep" . t) ,(safe-kv "reason" reason)
+                                             ,(safe-kv "report_to" report-to)
+                                             ,(safe-kv "command" command)))))))
+
+(define-step check-soft-ban (room-id user-id)
+  "Check if the user has a soft-ban event over their name and if so, ban them.
+If no condition occurs, will return T if the user was soft-banned and nil otherwise.
+
+See define-step"
+  (let ((luna.soft-ban (cl-matrix:room-state room-id *luna.soft-ban* (user->state-key user-id))))
     (when (and (not (null luna.soft-ban))
                (jsown:keyp luna.soft-ban "activep") (jsown:val luna.soft-ban "activep"))
       ;; ban them and mark as inactive
@@ -29,10 +43,43 @@
 
         ;; then if that is done with, update the soft-ban.
         (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
-         cl-matrix:*account* room-id *luna.soft-ban* (subseq user-id 1)
-         (jsown:to-json (jsown:extend-js luna.soft-ban ("activep" :false))))))))
+         cl-matrix:*account* room-id *luna.soft-ban* (user->state-key user-id)
+         (jsown:to-json (jsown:extend-js luna.soft-ban ("activep" :false))))
+        t))))
 
-(define-target-step room-soft-ban (target control group target-user reason)
+(define-reporter check-soft-ban (room-id target-user result)
+  (unless (null result)  ; there was no action necessary, no reason to report this.
+    (flet ((send-report? (group-name room-id) ; we need to know if this room actually belongs to the group it says it does.
+               (let* ((luna.group (get-group room-id group-name))
+                      (control-room (and (jsown:keyp luna.group "control_room") (jsown:val luna.group "control_room"))))
+                 (and control-room (target-present-in-control-p group-name control-room room-id)
+                      control-room)))) ; we also want to return the control as the value.
+      
+      (let* ((luna.soft_ban (cl-matrix:room-state room-id luna:*luna.soft-ban* (user->state-key target-user)))
+             (group-name (and (jsown:keyp luna.soft_ban "report_to") (jsown:val luna.soft_ban "report_to")))
+             (command (and (jsown:keyp luna.soft_ban "command") (jsown:val luna.soft_ban "command")))
+             (control (send-report? group-name room-id)))
+
+        (if control
+            (cond ((bad-resultp result)
+                   (report-summary control
+                                   (with-output-to-string (s)
+                                     (write-string (room-preview room-id) s)
+                                     (format-indent 4 "~%Failed to ban ~a after they joined." target-user)
+                                     (format-indent 4 "~%~a" (cdr result)))
+                                   command))
+
+                  (t (report-summary control
+                                     (with-output-to-string (s)
+                                       (write-string (room-preview room-id) s)
+                                       (format s "~%Banned ~a after they joined." target-user))
+                                     command)))
+            (when (jsown:keyp luna.soft_ban "report_to")
+              (v:error :check-soft-ban
+                       "unable to report to ~a after enforcing soft_ban, target is missing from the control rooms group."
+                       group-name)))))))
+
+(define-target-step room-soft-ban (target control group event-id target-user reason)
   ;; we need to test that we have permission to send the soft-ba nstate event.
   (unless (can-send-state-p target (cl-matrix:username cl-matrix:*account*) *luna.soft-ban*)
     (error 'luna-permission-error :description (format nil "can't send ~a event in ~a" *luna.soft-ban* target)))
@@ -42,16 +89,16 @@
     (error 'luna-permission-error :description (format nil "can't ban in ~a" target)))
 
   ;; then we just issue the soft-ban event.
-  (soft-ban target target-user reason)
+  (soft-ban target target-user :reason reason :report-to group :command event-id)
   target)
 
-(define-step group-soft-ban (control group sender target-user reason)
+(define-step group-soft-ban (control group event-id sender target-user reason)
   (unless (has-power-p control sender "ban")
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to ban in this room." sender)))
 
   (mapgroup (lambda (r)
-              (room-soft-ban r control group target-user reason))
+              (room-soft-ban r control group event-id target-user reason))
             control group))
 
 (define-command-parser soft-ban (name rest room-id event)
@@ -61,7 +108,8 @@ ban the user from all rooms in the group, without forcing them to force join."
   (cl-ppcre:register-groups-bind (group-name target-user reason)
       ("^(\\S+)\\s+(\\S+)(?:\\s+(.+))?" rest)
     (when (and group-name target-user)
-      (funcall #'group-soft-ban room-id group-name (jsown:val event "sender") target-user reason))))
+      (funcall #'group-soft-ban room-id group-name (jsown:val event "event_id") (jsown:val event "sender")
+                target-user reason))))
 
 ;;; ok these comments have fucked slime somehow
 ;;; ok use hooks.lisp

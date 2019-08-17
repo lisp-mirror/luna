@@ -74,6 +74,14 @@ uses lparallel:pmapcar. "
       (jsown:keyp luna.group "control_room")
       (string= control-id (jsown:val luna.group "control_room")))))
 
+(defun target-present-in-control-p (group-name control-id target-id)
+  "true if the target is present in the control room for the given group."
+  (declare (type string group-name control-id target-id))
+  (let ((luna.group (cl-matrix:room-state control-id +state-type+ group-name)))
+    (and luna.group
+      (jsown:keyp luna.group "target_rooms")
+      (member target-id (jsown:val luna.group "target_rooms") :test #'string=))))
+
 (defun add-control-to-target (group-name control-id target-id)
   "edits the room state of only the target room to add it to the group."
   (declare (type string group-name control-id target-id))
