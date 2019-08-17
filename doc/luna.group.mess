@@ -1,0 +1,21 @@
+## luna.group
+
+### introduction
+
+this event provides a way to link rooms together. This is a different but compatible approach to #msc1772.
+
+### state_key
+
+ - "group name"(bold) ``string`` A name for the given group.
+
+### content
+
+#### required
+
+ - "activep"(bold) ``boolean`` signifies whether the group is currently active or not.
+
+#### optional
+
+ - "control_room"(bold) ``string`` a room that "controls" the other rooms in the group, luna will treat users power_levels in this room as present in all the rooms specified in the ``target_rooms``. This property only has to be present in the target rooms.
+
+ - "target_rooms"(bold) ``[string]`` a list of rooms that the control_room has authority over, each of these rooms will need a luna.group event with a ``control_room`` property pointing back to this room for luna to acknowledge the relationship. 
