@@ -21,3 +21,4 @@ before_script:
         - apt-get update -qy
         - apt-get install -y git
         - git clone https://gitlab.com/Gnuxie/cl-matrix.git ~/quicklisp/local-projects/cl-matrix
+        - sbcl --quit --eval '(ql:update-dist "quicklisp" :prompt nil)'
