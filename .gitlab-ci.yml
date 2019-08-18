@@ -18,5 +18,6 @@ image : daewok/lisp-devel
 
 before_script:
         - ln -s "${CI_PROJECT_DIR}" ~/quicklisp/local-projects/luna
-        - apt-get install git -qy
+        - apt-get update -qy
+        - apt-get install -y git
         - git clone https://gitlab.com/Gnuxie/cl-matrix.git ~/quicklisp/local-projects/cl-matrix
