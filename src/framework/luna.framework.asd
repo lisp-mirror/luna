@@ -2,7 +2,8 @@
   :version "0.0"
   :author "Gnuxie <Gnuxie@protonmail.com>"
   :license "NON-VIOLENT PUBLIC LICENSE v1"
-  :depends-on ("cl-matrix" "verbose" "cl-strings" "lparallel")
+  :homepage "https://gnuxie.gitlab.io/luna/
+  :depends-on" ("cl-matrix" "verbose" "cl-strings" "lparallel")
   :serial t
   :components ((:file "package")
                (:file "conditions")

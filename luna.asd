@@ -2,6 +2,7 @@
   :version "0.0"
   :author "Gnuxie <Gnuxie@protonmail.com>"
   :licence "NON-VIOLENT PUBLIC LICENSE v1+"
+  :homepage "https://gnuxie.gitlab.io/luna/"
   :depends-on ("luna.framework")
   :serial t
   :components ((:module "src"
