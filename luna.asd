@@ -17,6 +17,5 @@
                                    (:file "help")
                                    (:file "list")
                                    (:file "soft-ban")))
-                         (:file "hooks")
-
-))))
+                         (:file "hooks"))))
+  :description "extensible group management bot for matrix (matrix.org) to aid moderation of rooms and spam removal.")

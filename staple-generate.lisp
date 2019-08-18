@@ -8,8 +8,8 @@
      (sleep 1))
 
 (staple:generate :luna
-                 :subsystems (list (asdf:find-system "luna.framework"))
+                 :subsystems (list (list (asdf:find-system "luna.framework") :packages (list :luna.framework)))
+                 :packages (list :luna)
                  :if-exists :supersede
                  :images (list (asdf:system-relative-pathname :luna "doc/luna-red.svg"))
-                 :documents (list (asdf:system-relative-pathname :luna "README.md"))
                  :output-directory (asdf:system-relative-pathname :luna "doc/"))
