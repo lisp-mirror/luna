@@ -23,6 +23,7 @@
    #:intern-reporter
    #:defer-report
    #:bad-resultp
+   #:default-reporter
 
    #:with-defered-task
    #:with-reporting

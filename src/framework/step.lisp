@@ -24,7 +24,14 @@ See define-step
 
 
 (defmacro define-step (step-name (effective-room &rest lambda-list) &body body)
-  "effective-room, the room which the step is to operate on. This would be a control room in luna if the step was a group command, or it would be a target room if it was a single operation such as banning a user from a target room."
+  "Create a step that operates within the context of a single room (the effective-room).
+This would be a control room in luna if the step was a group command, or it would be a target room if it was a single operation such as banning a user from a target room.
+
+You don't have to use define-step, but it provides a way to talk to the default reporter depending on whether the step experiances a condition (which is to return a cons containing the effective-room and the condition).
+
+See luna:define-target-step
+See default-reporter
+See catch-error"
   (multiple-value-bind (body declerations docstring) (alexandria:parse-body body)
     `(defun ,step-name (,effective-room ,@lambda-list)
        ,@ (if (null docstring) declerations (append docstring declerations))

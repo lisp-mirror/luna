@@ -1,0 +1,62 @@
+# luna.framework
+
+## prerequisites to reading this doc.
+
+You will probably want to read "this"(https://gitlab.com/Gnuxie/luna/blob/master/doc/luna.group.mess) to get an idea of how luna groups work.
+
+## introduction
+
+The luna framework provides a few basic mechanisms for building bots.
+
+1. named "parsers"(bold) that can be retrieved and called. ``define-command-parser``
+
+2. named "reporters"(bold) that can be used to report the status of a command back to the user. ``define-reporter``
+
+3. "steps"(bold) that are used to enforce a default protocol between your actual command logic (e.g. banning a user) and any associated reporter. ``define-step``
+
+4. An index of help messages that are defined from the given docstring of ``define-command-parser``
+
+## application to luna (for both example and internal development)
+
+### defining commands
+
+Luna uses the macros provided by this system in it's commands "directory"(https://gitlab.com/Gnuxie/luna/tree/master/src/commands)
+
+#### luna:hard-ban | first steps
+
+In this "example"(https://gitlab.com/Gnuxie/luna/blob/master/src/commands/group-ban.lisp) I want to show you how luna uses the framework. We're going to add a ban command to luna that we can use. (please note, that it is not recommended to hard-ban people from groups and you should instead use the soft-ban feature).
+
+So if we want to ban uses from a group of rooms, we need to do a few things:
+
+1. define a command and parse the arguments
+
+2. get a list of rooms to ban the user from.
+
+3. check we have permission in each room to ban them.
+
+4. ban them.
+
+We can first focus on deciding how to ban a user from just one room with ``room-ban``, and we do that with a ``define-target-step`` which luna provides to extend ``define-step`` in the context of a target_room (basically it checks the condition that a target needs a luna.group event present which points back to the control room and that's the only difference).
+First we check our bot has permission to ban people, and can raise a condition otherwise which the reporter will tell our user about later. We can then call ``cl-matrix:room-ban`` and that's all we have to do.
+That's step 3-4 dealt with.
+
+To deal with step 2, we will use another step defined with ``define-step`` called ``ban``
+Now to get the list of rooms we can just use mapgroup, which essentially handles fetching the list of ``target_rooms`` from the control room and calls mapcar on that list with our provided function, which in this case is just a lambda calling our ``room-ban`` defined earlier. mapgroup will then return a list with the result of each step, and this will be passed back to our reporter, which will search the list for a bad-result using ``bad-resultp`` and warn the user if something went wrong.
+
+Step 1 can now be handled with ``define-command-parser``. Our parser called ``hard-ban`` will be passed with the name of the command the user gave (hard-ban), the arguments ``rest``, the room-id the command was sent from and the event which contains the command. We use cl-ppcre to parse the ``rest`` argument and from there we call our ``ban`` step with it's required arguments.
+
+That's all that is needed to create a new command in luna. Now when we do ``!luna hard-ban <my-group> @meow:foo.net`` they will be banned from all rooms in ``<my-group>``.
+This is because ``define-command-parser`` will intern the parser function for us, then the ``luna::issue-command-hook`` (see src/hooks.lisp) will call ``defer-report`` which will search for the ``hard-ban`` parser and then call it.
+
+If you're making your own bot from this framework then you'll need to look at src/hooks.lisp and do something similar (don't worry it's only 5~ lines) and also set up some kind of syncer (see listeners.lisp for an example of how to do that).
+I've intentionally left these out of the framework so you're not limited by them, however they are easy to copy and use without many (if any?) modifications.
+
+
+#### luna:create-group | making decisions based on the outcome of other steps
+
+This "example"(https://gitlab.com/Gnuxie/luna/blob/master/src/commands/create-group.lisp) shows you how to manage chains of steps and make decisions based on their outcome.
+
+We start by defining a sub-step, ``add-room-to-group``, which we will add a ``luna.group`` event to a target room. This is basically the same strucutre as the ``room-ban`` step from before.
+
+Now we'll look at ``add-to-group`` which is called in the context of a ``control_room``. We need to call ``add-room-to-group`` on each of our targets, and then only add targets to our ``control_room`` that didn't experience some sort of problem by using remove-if with ``bad-resultp`` on our results. We want to make sure we report those problems back to our users though, so we retain and return the unfiltered list back to our reporter.
+

@@ -11,4 +11,4 @@
                (:file "step")
                (:file "listener")
                (:file "report"))
-  :description "framework used to built luna")
+  :description "framework used to build luna")

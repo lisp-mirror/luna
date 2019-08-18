@@ -6,20 +6,22 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defun bad-resultp (thing)
   "a bad result is a list that looks like this
-(cons room-id-error-was-singaled-in condition)
+(cons effective-room condition)
 
-See define-step"
+See define-step
+See catch-error"
   (and (listp thing)
        (and (typep (cdr thing) 'error))))
 
 (defun default-reporter (target event-id result/s)
-  "The default repoter
+  "The default reporter
 
-if results is a string, then return the string to the given room-id as passed.
+if results is a string, then report the string directly to the given room-id.
 
-if results is a list, report all the bad results in the list to the given room-id as contested.
+if results is a list, report all the bad results in the list to the given room-id and mark as \"contested\".
+if the list is empty or contains no bad results, then report to the room as \"Success\".
 
-if results is a bad-result then report to the given room as failed.
+if results is a bad-result then report the condition to the given room as \"failed\".
 
 See bad-resultp"
   (let ((message
@@ -52,6 +54,15 @@ See bad-resultp"
       #'default-reporter))
 
 (defmacro define-reporter (name (&rest lambda-list) &body body)
+  "creates a reporter interned with the given name through transform-parser-designator.
+
+In luna, when a parser is called through the issue-luna-command hook after someone uses !luna <command>,
+the hook will try to search for a reporter for <command> and if it doesn't find one the hook will use the default-reporter.
+The reporter is then funcalled with the room-id, the event-id in which the command was sent and also the result that comes from the parser. 
+
+You are not limited by the issue-luna-command hook though, lunas soft ban functionality uses another hook and reporter which accepts different arguments.
+
+See defer-report"
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (intern-reporter ',name
                       (lambda ,lambda-list
@@ -65,6 +76,9 @@ See bad-resultp"
          (return-and-log (c) (v:error ,category c) (return-from restart-block))))))
 
 (defmacro with-defered-task (log-category &body task)
+  "moves submits the body to the luna-kernal to be picked up by a worker thread.
+
+See with-generic-error-handling"
   `(let ((*channel* (lparallel:make-channel)))
      (declare (special *channel*))
      (lparallel:submit-task *channel*
@@ -73,10 +87,18 @@ See bad-resultp"
           ,@task)))))
 
 (defmacro with-reporting (reporter-designator &rest args)
+  "finds the reporter for the designator and applies it to the arguments given
+
+See get-reporter"
   `(funcall (get-reporter ,reporter-designator)
             ,@args))
 
 (defun defer-report (parser-name rest room-id event)
+  "defer reporting and execution of the command to the luna-kernal.
+Will use with-reporting to call the reporter on the parser and the given args.
+
+See with-defered-task
+See with-reporting"
   (with-defered-task :reporter
       (with-reporting parser-name
         room-id (jsown:val event "event_id")
@@ -89,7 +111,7 @@ See bad-resultp"
   (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))
 
 (defmacro with-stream-to-report ((var room-id &optional event-id) &body body)
-  "wraps with-output-to-string and report-summary, creates an output stream to write to and then sends the string to the room specified.
+  "wraps with-output-to-string and report-summary, creates an output stream to write to and then sends the string to the room specified, if an event-id is given then it will send the report as a reply to it.
 
 See report-summary"
   `(report-summary ,room-id (with-output-to-string (,var)
