@@ -8,7 +8,7 @@
   (unless (can-send-state-p target (cl-matrix:username cl-matrix:*account*) "luna.group")
     (error 'luna-permission-error :description (format nil "~a doesn't have permission in ~a to start a group"
                                                        (cl-matrix:username cl-matrix:*account*) target)))
-  (unless (can-send-state-p target sender "luna.group")
+  (unless (can-send-state-p target sender "luna.group") ; check that the actual user sending this has permission. (instead of just the bot)
     (error 'luna-permission-error :description (format nil "~a doesn't permission to add ~a to the group ~a"
                                                        sender target control)))
 
@@ -27,8 +27,6 @@
     (apply #'add-targets-to-control group control (remove-if #'bad-resultp results))
     results))
 
-;;; !luna add-to-group cheesewheel &rest
-;;; could do reprots here? passing the conditions promise to them?
 (define-command-parser add-to-group (name rest room-id event)
   "GROUP TARGET-ROOMS...
 add the given rooms to the group."
