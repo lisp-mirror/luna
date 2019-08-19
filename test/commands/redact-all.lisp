@@ -16,8 +16,9 @@
             (cl-matrix:msg-send "spam!!!!" (cadr rooms))))
 
         (cl-matrix:with-account (*mod-user*)
-          (cl-matrix:room-join (cadr rooms))
-          (cl-matrix:msg-send "not-spam" (cadr rooms)))
+          (cl-matrix:room-join (cadr rooms) (caddr rooms))
+          (cl-matrix:msg-send "not-spam" (cadr rooms))
+          (cl-matrix:msg-send "not-spam" (caddr rooms)))
 
         (let ((before-token (cl-matrix:now-token)))
           (send-command (car rooms) (format nil "!luna redact redact-test ~a" (cl-matrix:username *normal-user*)))
@@ -36,7 +37,13 @@
                             (and (string= (jsown:val e "sender") (cl-matrix:username *mod-user*))
                                  (string= (jsown:filter e "content" "body") "not-spam")))
                           messages)
-                "should be other peoples messages here"))
+                 "should be other peoples messages here")
+
+          (true (null
+                 (remove-if-not (lambda (e)
+                                  (and (string= "m.room.redact" (jsown:val e "type"))))
+                                (cl-matrix:room-messages (caddr rooms) (cl-matrix:Now-token) "b" :limit "20")))
+                "messages were removed from other rooms."))
 
         (bt:destroy-thread listener)))))
   
