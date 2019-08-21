@@ -19,6 +19,12 @@
               (true (wait-until (car rooms) #'replyp :sync-token before-token)))
 
             (sleep 0.1)
+            (true (string= "ban" (let ((membership (cl-matrix:room-state already-joined "m.room.member"
+                                                                         (cl-matrix:username *normal-user*))))
+                                   (and (jsown:keyp membership "membership")
+                                        (jsown:val membership "membership"))))
+
+                  "user was not banned from room they were already in.")
             (dolist (target (cddr rooms))
               (true (null (string= "ban"
                                    (let ((membership (cl-matrix:room-state target "m.room.member"

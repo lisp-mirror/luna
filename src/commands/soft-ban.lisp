@@ -74,11 +74,14 @@ See define-step"
     (error 'luna-permission-error :description (format nil "can't send ~a event in ~a" *luna.soft-ban* target)))
 
   ;; then test we have permission to ban a user.
-  (unless (can-send-state-p target (cl-matrix:username cl-matrix:*account*) "ban")
+  (unless (has-power-p target (cl-matrix:username cl-matrix:*account*) "ban")
     (error 'luna-permission-error :description (format nil "can't ban in ~a" target)))
 
-  ;; then we just issue the soft-ban event.
-  (soft-ban target target-user :reason reason :report-to group :command event-id)
+  (let ((m.room.member (cl-matrix:room-state target "m.room.member" target-user)))
+    (if (jsown:keyp m.room.member "membership")
+        (cl-matrix:room-ban target-user (or reason "") target)
+        ;; then we just issue the soft-ban event.
+        (soft-ban target target-user :reason reason :report-to group :command event-id)))
   target)
 
 (define-step group-soft-ban (control group event-id sender target-user reason)
