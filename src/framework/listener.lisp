@@ -20,15 +20,22 @@
     (v:info :listener "starting listener ~a" sync-token)
     (lambda ()
       (tagbody listen-start
-         (handler-bind ((error (lambda (c) (unless *debug-execution* (invoke-restart 'restart-listener c)))))
+         (handler-bind ((usocket:timeout-error (lambda (c) (unless *debug-execution* (invoke-restart 'timeout-restart-listener c))))
+                        (error (lambda (c) (unless *debug-execution* (invoke-restart 'generic-restart-listener c)))))
            (restart-case (sync-listener sync-rate sync-token)
-             (restart-listener (c) (v:error :listener "condition hit listener top:~%~a~%~%" c)
+             (generic-restart-listener (c) (v:error :listener "condition hit listener top:~%~a~%~%" c)
                                (sleep 1) ; we should wait just incase things go really wrong.
-                               (go reset-listener))))
+                               (go generic-reset-listener))
 
-       reset-listener
-         (v:info :listener "restarting listener")
+             (timeout-restart-listener (c) (v:error :listener "caught timeout at top:~%~a~%" c)
+                                       (sleep 10) ; wait until server comes back.
+                                       (go timeout-reset))))
+
+       generic-reset-listener
+         (v:info :listener "getting new sync token for reset")
          (setf sync-token (cl-matrix:now-token))
+       timeout-reset
+         (v:info :listener "restarting listener")
          (go listen-start)))))
 
 (defun start-listening (&key (sync-token (cl-matrix:now-token)) (sync-rate 0.2))
