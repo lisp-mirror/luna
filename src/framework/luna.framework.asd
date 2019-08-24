@@ -11,5 +11,6 @@
                (:file "command-parser")
                (:file "step")
                (:file "listener")
-               (:file "report"))
+               (:file "report")
+               (:file "hooks"))
   :description "framework used to build luna")

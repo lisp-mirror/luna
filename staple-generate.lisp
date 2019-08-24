@@ -8,7 +8,7 @@
      (sleep 1))
 
 (staple:generate :luna
-                 :subsystems (list (list (asdf:find-system "luna.framework") :packages (list :luna.framework)))
+                 :subsystems (list (list (asdf:find-system "luna.framework") :packages (list :luna.framework :luna.framework.hooks)))
                  :packages (list :luna :luna.hooks)
                  :if-exists :supersede
                  :images (list (asdf:system-relative-pathname :luna "doc/luna-red.svg"))
