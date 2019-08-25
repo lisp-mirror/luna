@@ -55,6 +55,13 @@
          :meta-var "FILE"
          :arg-parser #'identity)
 
+  (:name :bot-name
+         :description "The name of the bot responds to, default is `!luna`"
+         :short #\n
+         :long "bot-name"
+         :arg-pass #'identity
+         :meta-var "NAME")
+
   (:name :verbose-asdf
          :description "show asdf output."
          :long "verbose-asdf")
@@ -106,6 +113,7 @@ This script is not required to operate luna."
           (sync-rate (or (getf options :sync-rate) 2))
           (log-output (getf options :log-output))
           (verbose-asdf (getf options :verbose-asdf))
+          (bot-name (getf options :bot-name))
           (scheme (or (and (getf options :protocol) (format nil "~a://" (getf options :protocol))) "https://")))
       (let ((homeserver (format nil "~a~@[:~a~]"
                                 (and user-id (or (getf options :hostname) (cl-matrix:get-hostname user-id)))
@@ -121,6 +129,9 @@ This script is not required to operate luna."
         (unless (or access-token password)
           (format t "Fatal: Must supply either an access-token or a password.")
           (opts:exit 1))
+
+        (when bot-name
+          (setf luna.framework.hooks:*bot-name* bot-name))
 
         (when (string= scheme "http://")
           (format t "~&WARNING: You are connecting over http"))
