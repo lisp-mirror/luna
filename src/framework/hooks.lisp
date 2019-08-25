@@ -1,10 +1,9 @@
 #| This file is part of luna
    Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
-(defpackage luna.framework.hooks
+(defpackage #:luna.framework.hooks
   (:use #:cl #:method-hooks #:cl-matrix.base-events #:luna.framework)
   (:export
-   #:issue-luna-command
    #:*bot-name*))
 
 (in-package #:luna.framework.hooks)

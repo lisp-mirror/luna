@@ -2,4 +2,13 @@
   (:use #:cl #:parachute)
   (:export
    #:test-all
-   #:prepare-synapse))
+   #:prepare-synapse
+   #:prepare-all
+   #:*normal-user*
+   #:*mod-user*
+   #:*luna-user*
+   #:*listeners*
+   #:*clean*
+
+   #:wait-until
+))
