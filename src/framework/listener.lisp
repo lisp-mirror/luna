@@ -44,6 +44,11 @@
                                       (cl-matrix:*account* . ,cl-matrix:*account*)
                                       (lparallel:*kernel* . ,lparallel:*kernel*))))
 
+(defun start-luna (account &key (sync-rate 2))
+  (cl-matrix:with-account (account)
+    (make-luna-kernal)
+    (start-listening :sync-rate sync-rate)))
+
 (defmacro luna-lambda ((&rest lambda-list) &body body)
   "gets the context needed for tasks before submitting to worker threads, such as cl-matrix:*account*"
   (let ((account-sym (gensym))

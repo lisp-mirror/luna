@@ -56,4 +56,5 @@
    #:start-listening
    #:luna-lambda
    #:make-luna-kernal
+   #:start-luna
    ))
