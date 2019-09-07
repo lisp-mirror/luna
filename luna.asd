@@ -14,7 +14,6 @@
                                   ((:file "create-group")
                                    (:file "group-ban")
                                    (:file "redact-all")
-                                   (:file "help")
                                    (:file "list")
                                    (:file "soft-ban")))
                          (:file "hooks"))))
