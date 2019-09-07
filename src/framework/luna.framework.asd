@@ -12,5 +12,6 @@
                (:file "step")
                (:file "listener")
                (:file "report")
-               (:file "hooks"))
+               (:file "hooks")
+               (:file "base-commands"))
   :description "framework used to build luna")
