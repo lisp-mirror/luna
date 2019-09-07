@@ -6,6 +6,11 @@ See the luna.framework system (in this repo) and also see [cl-matrix](https://gi
 
 **The library is still WIP and is subject to change, it is however usable and there is some documentation on how to use luna.framework/extend luna.**
 
+When I say subject to change, I mean there could be pretty big changes without
+warning.
+
+If you get stuck you can talk to me in `#cl-matrix:matrix.org`
+
 ## Usage
 
 This bot is mostly used for banning and cleaning up spam across a group of rooms in a more accessible way than a simple script.
@@ -35,46 +40,50 @@ git clone https://gitlab.com/Gnuxie/cl-matrix.git
 git clone https://gitlab.com/Gnuxie/luna.git
 ```
 
+If you're using the startup script you'll also want:
+
+```
+git clone https://gitlab.com/Gnuxie/dunno.git
+```
 
 ### starting
 
 #### for lispers
 
-If you're a lisper then I recommend you just use `make-luna-kernal` then `start-luna`, or follow this example [config](https://gitlab.com/Gnuxie/luna/blob/master/example-config.lisp) that you can probably just use but it's pretty meh.
+If you're a lisper then I recommend you just use `make-luna-kernal` then `start-luna`,
+or follow this example [config](https://gitlab.com/Gnuxie/luna/blob/master/example-config.lisp)
+that you can probably just use but it's pretty meh.
 
 #### script
 
-If you need to have some kind of script to start luna with then there's [this](https://gitlab.com/Gnuxie/luna/blob/master/scripts/start-bot-args.lisp) (well [this](https://gitlab.com/Gnuxie/luna/blob/master/scripts/start-bot.sh)).
+If you need to have some kind of script to start luna with then there's [this](https://gitlab.com/Gnuxie/luna/blob/master/scripts/start-bot-args.lisp)
+(well [this](https://gitlab.com/Gnuxie/luna/blob/master/scripts/start-bot.sh)).
 
-Which can be started something like so
+You will first need to install [dunno](https://gitlab.com/Gnuxie/dunno/).
 
 ```
-
 [ scripts]$ ./start-bot.sh --help
 helper script to start and run luna.
 
-Usage: start-bot.sh [-u|--username @<localpart>:<homeserver>] [-h|--help]
-                    [-a|--access-token ACCESS-TOKEN] [-p|--password PASSWORD] [-s|--sync-rate FLOAT]
-                    [-l|--log-output FILE] [--verbose-asdf] [--protocol PROTOCOL] [--port PORT]
-                    [--hostname HOST] [MODULES...]
+Usage: start-bot.sh [-h|--help] [-c|--config CONFIG] [MODULES...]
 
 Available options:
-  -u, --username @<localpart>:<homeserver>  Matrix user id for the bot
-  -h, --help                                Display this help message
-  -a, --access-token ACCESS-TOKEN           An access token to the user id
-  -p, --password PASSWORD                   Password for the matrix user if you don't have an access token to supply
-  -s, --sync-rate FLOAT                     The rate to poll sync in seconds
-  -l, --log-output FILE                     A file to write the log to.
-  --verbose-asdf                            show asdf output.
-  --protocol PROTOCOL                       the protocol to use when communicating to the server, https by default.
-  --port PORT                               The port to use when communicating to the server
-  --hostname HOST                           The hostname to use when communicating to the server
+  -h, --help               Display this help message
+  -c, --config CONFIG      A file to load for the config
 
-You should pass what modules you want the framework to load (so if you wanted luna then just luna), and they will be loaded into the image before luna starts (so that their hooks, command parsers etc are available to the listener).
+You should pass which modules you want the framework to load, and they will be loaded into the image before luna starts (so that their hooks, command parsers etc are available to the listener).
 This script is not required to operate luna.
-
-[ scripts]$ ./start-bot.sh --username @meow:clhs.gang --access-token MEOWWWWWWWWY -l log.loggo luna
 ```
+
+#### configuration
+
+The config file used by the script is a config defined by [dunno](https://gitlab.com/Gnuxie/dunno/)
+
+if you are using the script you can find an example config file [here](https://gitlab.com/Gnuxie/luna/tree/master/scripts/config.lisp)
+The configuration options are described here [here](https://gitlab.com/Gnuxie/luna/tree/master/scripts/start-bot-args.lisp#L25)
+
+Any additional option can just be added to the alist. 
+
 
 ## Documentation
 Internal and framework doc can be viewed [here](https://gnuxie.gitlab.io/luna/)
