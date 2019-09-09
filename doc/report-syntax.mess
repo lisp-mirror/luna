@@ -1,0 +1,68 @@
+# report-syntax
+
+This module is necessary so that we can leave generation of any html/fallback right up to the last possible moment.
+It also allows us to have a unified way of defining when an error occured and where instead of the bad-resultp stuff
+we are already doing, we should aim to erradicate that.
+
+## lists
+
+lists are represented in the same way they are already in lisp.
+
+## condition
+
+::
+(:room
+  (:id "")
+  (:condition)
+)
+::
+
+## pass, failed, contested.
+
+to be infered by the reporter.
+
+technicalyl the reporter could do this calculation as it walks the tree
+and add the attribute.
+
+## how to distinguish between a list and more properties? do we need to?
+
+you can just do something like (:steps (:foo ..)) to get the nested stuff.
+::
+(defgeneric report (stream car rest &optional format))
+
+(:room
+  (:id "foo")
+  (:condition c))
+::
+
+::
+(:step
+  (:room "!foo:matrix.org")
+  (:condition c)
+  (:values )
+  (:sub-steps ...))
+::
+
+it's going to be assumed that if no room is provided then we're not going to
+ensure the left margin.
+
+Maybe add some :description element later or :summary or something.
+
+::
+(defmethod report ((key (eql :step)) association stream format)
+  (let ((room-info (assoc :room (cdr association)))
+	(condition (assoc :condition (cdr association))))
+    (when room-info
+      (report (car room-info) room-info stream format))
+
+    (let ((child-report
+           (with-output-to-string (s)
+             (apply #'report-children format s '(:room) (cdr association))))
+
+	  (condition
+	   (if (eql format :org.matrix.custom.html)
+	       )))
+      (when room-info
+        (ensure-left-margin 4 child-report))
+      (write-string child-report stream))))
+::

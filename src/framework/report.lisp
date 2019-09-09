@@ -4,16 +4,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defvar *report-table* (make-hash-table :test 'equal))
 
-(defun bad-resultp (thing)
-  "a bad result is a list that looks like this
-(cons effective-room condition)
-
-See define-step
-See catch-error"
-  (and (listp thing)
-       (and (typep (cdr thing) 'error))))
-
-(defun default-reporter (target event-id result/s)
+(defun default-reporter (target event-id tree)
   "The default reporter
 
 if results is a string, then report the string directly to the given room-id.
@@ -23,26 +14,22 @@ if the list is empty or contains no bad results, then report to the room as \"Su
 
 if results is a bad-result then report the condition to the given room as \"failed\".
 
-See bad-resultp"
-  (let ((message
-         (cond ((bad-resultp result/s)
-                (with-output-to-string (s)
-                  (format s "<font color=\"red\">Failed</font> with condition:~%~a" (cdr result/s))))
+See report"
+  (if (stringp tree)
+      (report-text target tree event-id)
+      (let ((text-message (make-array '(0) :element-type 'base-char :fill-pointer 0 :adjustable t))
+            (html-message (make-array '(0) :element-type 'base-char :fill-pointer 0 :adjustable t)))
+        (loop :for string :in (list text-message html-message)
+           :for format :in '(:text :org.matrix.custom.html) :do
+             (with-output-to-string (s string)
+               (if (step-condition tree)
+                   (format s "~:[~a~;<font color=\"red\">~a</font>~]" (eql format :org.matrix.custom.html)
+                           "Failed. ")
+                   (format s "~:[~a~;<font color=\"green\">~a</font>~]" (eql format :org.matrix.custom.html)
+                           "Finished. "))
+               (report (car tree) tree s format)))
 
-               ((stringp result/s) result/s)
-
-               (t
-                (let ((bad-rooms (remove-if-not #'bad-resultp result/s)))
-                  (cond ((null bad-rooms)
-                         (with-output-to-string (s)
-                           (format s "<font color=\"green\">Finished</font> Succesfully")))
-
-                        (t (with-output-to-string (s)
-                             (format s "<font color=\"yellow\">Contested</font> with ~d conditions:" (length bad-rooms))
-                             (dolist (r bad-rooms)
-                               (format-indent 4 s "~%~a" (room-preview (car r)))
-                               (format-indent 8 s "~%~a" (cdr r)))))))))))
-    (report-summary target message event-id)))
+        (report-summary target text-message html-message event-id))))
 
 (defun intern-reporter (name reporter)
   (setf (gethash (transform-parser-designator name)
@@ -104,11 +91,17 @@ See with-reporting"
         room-id (jsown:val event "event_id")
         (funcall (get-parser parser-name) parser-name rest room-id event))))
 
-(defun report-summary (control-id summary &optional event-id)
-  (cl-matrix:msg-send summary control-id :type "m.notice" :event-id event-id
+(defun report-summary (control-id fallback summary &optional event-id)
+  (cl-matrix:msg-send fallback control-id :type "m.notice" :event-id event-id
                       :format "org.matrix.custom.html"
                       :formatted-body (cl-strings:replace-all summary (coerce '(#\Newline) 'string) "<br/>"))
-  (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a" control-id event-id summary)))
+  (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a"
+                          control-id event-id fallback)))
+
+(defun report-text (control-id text &optional event-id)
+  (cl-matrix:msg-send text control-id :type "m.notice" :event-id event-id)
+  (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a"
+                          control-id event-id text)))
 
 (defmacro with-stream-to-report ((var room-id &optional event-id) &body body)
   "wraps with-output-to-string and report-summary, creates an output stream to write to and then sends the string to the room specified, if an event-id is given then it will send the report as a reply to it.

@@ -12,6 +12,13 @@
   (cl-strings:replace-all string (coerce '(#\Newline) 'string)
                           (format nil "~%~v@{~A~:*~}" margin " ")))
 
+(defmacro with-ensured-left-margin ((margin stream) &body body)
+  `(write-string
+    (ensure-left-margin ,margin
+      (with-output-to-string (,stream)
+        ,@body))
+    ,stream))
+
 (defun format-indent (margin destination control-string &rest args)
   (write-string (ensure-left-margin margin
                                     (apply #'format (list* nil control-string args)))

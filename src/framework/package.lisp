@@ -22,7 +22,7 @@
    #:get-reporter
    #:intern-reporter
    #:defer-report
-   #:bad-resultp
+   #:step-condition
    #:default-reporter
 
    #:with-defered-task

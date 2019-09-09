@@ -8,6 +8,7 @@
   :components ((:file "package")
                (:file "conditions")
                (:file "room-ops")
+               (:file "report-syntax")
                (:file "command-parser")
                (:file "step")
                (:file "listener")

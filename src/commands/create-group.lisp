@@ -13,7 +13,7 @@
                                                        sender target control)))
 
   (add-control-to-target group control target)
-  target)
+  (step-result target))
 
 (define-step add-to-group (control group sender &rest targets)
   (unless (can-send-state-p control sender *luna.group*)
@@ -24,8 +24,11 @@
           (luna-lambda (r)
             (add-room-to-group r control group sender))
           targets)))
-    (apply #'add-targets-to-control group control (remove-if #'bad-resultp results))
-    results))
+    (apply #'add-targets-to-control group control
+           (mapcar (lambda (s)
+                     (cdr (assoc :room (cdr s))))
+                   (remove-if #'step-condition results)))
+    (step-result control :sub-steps results)))
 
 (define-command-parser add-to-group (name rest room-id event)
   "GROUP TARGET-ROOMS...

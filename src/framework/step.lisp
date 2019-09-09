@@ -6,9 +6,24 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
   "set to true if you want conditions to pass through handler-binds that would normally capture erros and report them to control rooms. Should only be used to debug.")
 
 (declaim (inline step-result))
-(defun step-result  (room-id &optional error)
+(defun step-result  (room-id &key sub-steps condition)
   (declare (type string room-id))
-  (cons room-id error))
+  (apply #'make-step
+         (remove-if #'null `((:room . ,room-id)
+                             (:condition . ,condition)
+                             (:sub-steps . ,sub-steps))
+                    :key #'cdr)))
+
+(declaim (inline make-step))
+(defun make-step (&rest step-args)
+  (cons :step step-args))
+
+(defun step-condition (step)
+  "a bad result is a result with a condition
+
+See define-step
+See catch-error"
+  (cdar (member :condition (cdr step) :key #'car)))
 
 (defmacro catch-error (effective-room &body body)
   "provides a common way to handle errors in steps. If there is an error, then under nomal circumstances, result-step is called with the effective-room and the condition to provide a result for the step.
@@ -20,7 +35,7 @@ See define-step
                              (unless *debug-execution* (invoke-restart 'return-condition c)))))
      (block restart-block
        (restart-case (progn ,@body)
-         (return-condition (condition) (return-from restart-block (step-result ,effective-room condition)))))))
+         (return-condition (condition) (return-from restart-block (step-result ,effective-room :condition condition)))))))
 
 
 (defmacro define-step (step-name (effective-room &rest lambda-list) &body body)

@@ -38,7 +38,7 @@ See define-step"
         (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
          cl-matrix:*account* room-id *luna.soft-ban* (user->state-key user-id)
          (jsown:to-json (jsown:extend-js luna.soft-ban ("activep" :false))))
-        t))))
+        (step-result room-id)))))
 
 (define-reporter check-soft-ban (room-id target-user result)
   (unless (null result)  ; there was no action necessary, no reason to report this.
@@ -54,7 +54,7 @@ See define-step"
              (control (send-report? group-name room-id)))
 
         (if control
-            (cond ((bad-resultp result)
+            (cond ((step-condition result)
                    (with-stream-to-report (s control command)
                      (write-string (room-preview room-id) s)
                      (format-indent 4 "~%Failed to ban ~a after they joined." target-user)
@@ -82,16 +82,17 @@ See define-step"
         (cl-matrix:room-ban target-user (or reason "") target)
         ;; then we just issue the soft-ban event.
         (soft-ban target target-user :reason reason :report-to group :command event-id)))
-  target)
+  (step-result target))
 
 (define-step group-soft-ban (control group event-id sender target-user reason)
   (unless (has-power-p control sender "ban")
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to ban in this room." sender)))
 
-  (mapgroup (lambda (r)
-              (room-soft-ban r control group event-id target-user reason))
-            control group))
+  (step-result control :sub-steps
+    (mapgroup (lambda (r)
+                (room-soft-ban r control group event-id target-user reason))
+              control group)))
 
 (define-command-parser ban (name rest room-id event)
   "GROUP TARGET-USER [REASON...]

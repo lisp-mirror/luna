@@ -15,17 +15,18 @@
           (lambda (e)
             (cl-matrix:room-redact target (jsown:val e "event_id") :reason reason))
           events))
-    target))
+    (step-result target)))
 
 (define-step redact-all (control group sender target-user reason)
   (unless (has-power-p control sender "redact")
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to redact in this room." sender)))
 
-  (mapgroup
-   (lambda (r)
-     (room-redact-all r control group target-user reason))
-   control group))
+  (step-result control :sub-steps
+    (mapgroup
+     (lambda (r)
+       (room-redact-all r control group target-user reason))
+     control group)))
 
 (define-command-parser redact (name rest room-id event)
   "GROUP TARGET-USER [REASON...]
