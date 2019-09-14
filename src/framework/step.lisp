@@ -7,7 +7,6 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (declaim (inline step-result))
 (defun step-result  (room-id &key sub-steps condition description)
-  (declare (type string room-id))
   (apply #'make-step
          (remove-if #'null `((:room . ,room-id)
                              (:condition . ,condition)

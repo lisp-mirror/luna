@@ -44,7 +44,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defmethod report ((key (eql :step)) association stream format)
   (flet ((report-room-info-p (room-info condition sub-steps)
-           (and (cdr room-info) (or condition sub-steps))))
+           (or (cdr room-info) (or condition sub-steps))))
     (let ((room-info (assoc :room (cdr association)))
           (condition (assoc :condition (cdr association)))
           (sub-steps (assoc :sub-steps (cdr association)))
@@ -60,7 +60,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
                  (format s "Experianced condition:%")
                  (format-indent 4 s "~:[<font color=\"yellow\">~a</font>~;~*~a~]"
                                 (eql format :text) condition))
-               (report-children format s '(:room :condition) (cdr association)))))
+               (report-children format s '(:room :condition :description) (cdr association)))))
         (when (report-room-info-p room-info condition sub-steps)
           (ensure-left-margin 4 child-report))
         (write-string child-report stream)))))
