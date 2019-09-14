@@ -121,5 +121,6 @@ e.g. `start-bot.sh -c config.lisp luna` would load the luna module and start the
                                            :homeserver homeserver)
                    (cl-matrix:login username (print password) :homeserver homeserver :scheme protocol))))
           (format t "~&starting listener from start-bot script~%")
+          (luna.framework:make-luna-kernal)
           (cl-matrix:with-account (account) ; we're doing this because we're in no-inform.
             (funcall (luna.framework:make-listener (cl-matrix:now-token) sync-rate))))))))
