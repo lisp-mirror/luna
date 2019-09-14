@@ -46,23 +46,6 @@ you can just do something like (:steps (:foo ..)) to get the nested stuff.
 it's going to be assumed that if no room is provided then we're not going to
 ensure the left margin.
 
-Maybe add some :description element later or :summary or something.
+description appears indented with the room preview if one is provided or the step
+experianced a condition..
 
-::
-(defmethod report ((key (eql :step)) association stream format)
-  (let ((room-info (assoc :room (cdr association)))
-	(condition (assoc :condition (cdr association))))
-    (when room-info
-      (report (car room-info) room-info stream format))
-
-    (let ((child-report
-           (with-output-to-string (s)
-             (apply #'report-children format s '(:room) (cdr association))))
-
-	  (condition
-	   (if (eql format :org.matrix.custom.html)
-	       )))
-      (when room-info
-        (ensure-left-margin 4 child-report))
-      (write-string child-report stream))))
-::

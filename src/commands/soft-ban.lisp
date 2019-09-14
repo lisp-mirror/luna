@@ -38,7 +38,8 @@ See define-step"
         (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
          cl-matrix:*account* room-id *luna.soft-ban* (user->state-key user-id)
          (jsown:to-json (jsown:extend-js luna.soft-ban ("activep" :false))))
-        (step-result room-id)))))
+        (step-result room-id :description
+                     (format nil "Banned ~a after they joined the room." user-id))))))
 
 (define-reporter check-soft-ban (room-id target-user result)
   (unless (null result)  ; there was no action necessary, no reason to report this.
@@ -53,20 +54,19 @@ See define-step"
              (command (and (jsown:keyp luna.soft_ban "command") (jsown:val luna.soft_ban "command")))
              (control (send-report? group-name room-id)))
 
-        (if control
-            (cond ((step-condition result)
-                   (with-stream-to-report (s control command)
-                     (write-string (room-preview room-id) s)
-                     (format-indent 4 "~%Failed to ban ~a after they joined." target-user)
-                     (format-indent 4 "~%~a" (cdr result))))
+        (when (step-condition result)
+          (push `(:description . ,(format nil "Failed to ban ~a after they joined." target-user))
+                (cdr result)))
 
-                  (t (with-stream-to-report (s control command)
-                       (write-string (room-preview room-id) s)
-                       (format s "~%Banned ~a after they joined." target-user))))
-            (when (jsown:keyp luna.soft_ban "report_to")
+        (if control
+            (report-report control result command)
+            (progn
+              (when (jsown:keyp luna.soft_ban "report_to")
+                (v:error :check-soft-ban
+                         "unable to report to ~a after enforcing soft_ban, target is missing from the control rooms group."
+                         group-name))
               (v:error :check-soft-ban
-                       "unable to report to ~a after enforcing soft_ban, target is missing from the control rooms group."
-                       group-name)))))))
+                       "Unable to report soft_ban to control~%~%~a" (report nil result nil :text))))))))
 
 (define-target-step room-soft-ban (target control group event-id target-user reason)
   ;; we need to test that we have permission to send the soft-ba nstate event.

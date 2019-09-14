@@ -103,6 +103,12 @@ See with-reporting"
   (v:info :report (format nil "sent summary to ~a~@[ in response to ~a~]:~%~%~a"
                           control-id event-id text)))
 
+(defun report-report (control-id report &optional event-id)
+  (report-summary control-id
+                  (report nil report nil :text)
+                  (report nil report nil :org.matrix.custom.html)
+                  event-id))
+
 (defmacro with-stream-to-report ((var room-id &optional event-id) &body body)
   "wraps with-output-to-string and report-summary, creates an output stream to write to and then sends the string to the room specified, if an event-id is given then it will send the report as a reply to it.
 

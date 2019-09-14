@@ -12,10 +12,15 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 (defgeneric report (key association stream format))
 
 (defmethod report (key association s format)
-  (apply #'report-children format s nil (cdr association)))
+  (when (listp (cdr association))
+    (apply #'report-children format s nil (cdr association))))
+
+(defmethod report :around ((key (eql nil)) association (s (eql nil)) format)
+  (with-output-to-string (s)
+    (report (car association) association s format)))
 
 (defmethod report :around ((key (eql :room)) association stream format)
-  (unless (listp (cdr association))
+  (unless (or (listp (cdr association)) (null (cdr association)))
     (let ((room (cdr association)))
       (let ((m.room.name (cl-matrix:room-state room  "m.room.name"))
             (m.room.avatar (cl-matrix:room-state room "m.room.avatar")))
@@ -39,15 +44,18 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defmethod report ((key (eql :step)) association stream format)
   (flet ((report-room-info-p (room-info condition sub-steps)
-           (and room-info (or condition sub-steps))))
+           (and (cdr room-info) (or condition sub-steps))))
     (let ((room-info (assoc :room (cdr association)))
           (condition (assoc :condition (cdr association)))
-          (sub-steps (assoc :sub-steps (cdr association))))
+          (sub-steps (assoc :sub-steps (cdr association)))
+          (description (cdr (assoc :description (cdr association)))))
+
       (when (report-room-info-p room-info sub-steps condition)
         (report (car room-info) room-info stream format))
 
       (let ((child-report
              (with-output-to-string (s)
+               (when description (write-string description s))
                (when condition
                  (format s "Experianced condition:%")
                  (format-indent 4 s "~:[<font color=\"yellow\">~a</font>~;~*~a~]"

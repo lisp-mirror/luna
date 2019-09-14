@@ -17,6 +17,9 @@
 
    #:*debug-execution*
 
+   ;; report-syntax.lisp
+   #:report
+
    ;; report.lisp
    #:define-reporter
    #:get-reporter
@@ -24,6 +27,7 @@
    #:defer-report
    #:step-condition
    #:default-reporter
+   #:report-report
 
    #:with-defered-task
    #:with-reporting
