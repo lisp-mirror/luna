@@ -31,27 +31,28 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
   (call-next-method))
 
 (defmethod report ((key (eql :room)) association stream (format (eql :text)))
-  (format stream "~:[Unnamed Room.~;~:*~a~] (~a)"
+  (format stream "~%~:[Unnamed Room.~;~:*~a~] (~a)"
           (cdr (assoc :m.room.name (cdr association)))
           (cdr (assoc :room-id (cdr association)))))
 
 (defmethod report ((key (eql :room)) association stream (format (eql :org.matrix.custom.html)))
-  (format stream "~@[<img src=~s height=\"32\" alt\"room avatar\" vertical-align=\"middle\">~]"
+  (format stream "~%~@[<img src=~s height=\"32\" alt\"room avatar\" vertical-align=\"middle\">~]"
           (cdr (assoc :m.room.avatar (cdr association))))
   (format stream "~:[Unnamed Room.~;~:*~a~] (<code>~a</code>)"
           (cdr (assoc :m.room.name (cdr association)))
           (cdr (assoc :room-id (cdr association)))))
 
 (defmethod report ((key (eql :step)) association stream format)
-  (flet ((report-room-info-p (room-info condition sub-steps always-show-room)
-           (or always-show-room (and (cdr room-info) (or condition sub-steps)))))
+  (symbol-macrolet ((report-room-info?
+                     (or always-show-room (and (cdr room-info)
+                                               (or condition sub-steps)))))
     (let ((room-info (assoc :room (cdr association)))
           (condition (cdr (assoc :condition (cdr association))))
           (sub-steps (assoc :sub-steps (cdr association)))
           (description (cdr (assoc :description (cdr association))))
           (always-show-room (cdr (assoc :show-room (cdr association)))))
 
-      (when (report-room-info-p room-info sub-steps condition always-show-room)
+      (when report-room-info?
         (report (car room-info) room-info stream format))
 
       (let ((child-report
@@ -62,7 +63,7 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
                  (format-indent 4 s "~:[<font color=\"yellow\">~a</font>~;~a~]"
                                 (eql format :text) condition))
                (report-children format s '(:room :condition :description) (cdr association)))))
-        (when (report-room-info-p room-info condition sub-steps always-show-room)
-          (ensure-left-margin 4 child-report))
+        (when report-room-info?
+          (setf child-report (ensure-left-margin 4 child-report)))
         (write-string child-report stream)))))
 
