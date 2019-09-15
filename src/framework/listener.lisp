@@ -20,16 +20,31 @@
     (v:info :listener "starting listener ~a" sync-token)
     (lambda ()
       (tagbody listen-start
-         (handler-bind ((usocket:timeout-error (lambda (c) (unless *debug-execution* (invoke-restart 'timeout-restart-listener c))))
-                        (error (lambda (c) (unless *debug-execution* (invoke-restart 'generic-restart-listener c)))))
-           (restart-case (sync-listener sync-rate sync-token)
-             (generic-restart-listener (c) (v:error :listener "condition hit listener top:~%~a~%~%" c)
-                               (sleep 1) ; we should wait just incase things go really wrong.
-                               (go generic-reset-listener))
+         (handler-bind
+             ((usocket:timeout-error
+               (lambda (c) (unless *debug-execution*
+                             (invoke-restart 'timeout-restart-listener c))))
+              (error (lambda (c)
+                       (unless *debug-execution*
+                         (invoke-restart 'generic-restart-listener c)))))
 
-             (timeout-restart-listener (c) (v:error :listener "caught timeout at top:~%~a~%" c)
-                                       (sleep 10) ; wait until server comes back.
-                                       (go timeout-reset))))
+           (restart-case
+               (loop :do
+                    (multiple-value-bind (sync-data next-token)
+                        (cl-matrix:account-sync :since sync-token)
+                      (cl-matrix.base-events:issue-sync-event sync-data)
+                      (setf sync-token next-token))
+                    (sleep sync-rate))
+
+             (generic-restart-listener (c)
+               (v:error :listener "condition hit listener top:~%~a~%~%" c)
+               (sleep 1) ; we should wait just incase things go really wrong.
+               (go generic-reset-listener))
+
+             (timeout-restart-listener (c)
+               (v:error :listener "caught timeout at top:~%~a~%" c)
+               (sleep 10) ; wait until server comes back.
+               (go timeout-reset))))
 
        generic-reset-listener
          (v:info :listener "getting new sync token for reset")
@@ -60,4 +75,3 @@
            (declare (special *debug-execution*))
            (cl-matrix:with-account (,account-sym)
              ,@body))))))
-
