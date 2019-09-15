@@ -19,4 +19,4 @@ Will list all the known commands and related synopsis."
 
             (t (write-string (get-help command) s)))
 
-      (format s "~%~%(λ () `(<a href=\"https://thufie.lain.haus/NPL.html\">🏴NON-VIOLENT PUBLIC LICENSE</a> . https://gitlab.com/Gnuxie/luna))"))))
+      (format s "~%~%(λ () `((🏴NON-VIOLENT PUBLIC LICENSE . https://thufie.lain.haus/NPL.html ). https://gitlab.com/Gnuxie/luna))"))))

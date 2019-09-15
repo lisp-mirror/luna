@@ -38,7 +38,7 @@ See define-step"
         (cl-matrix.api.client:put-rooms/roomid/state/eventtype/statekey
          cl-matrix:*account* room-id *luna.soft-ban* (user->state-key user-id)
          (jsown:to-json (jsown:extend-js luna.soft-ban ("activep" :false))))
-        (step-result room-id :description
+        (step-result room-id :show-room t :description
                      (format nil "Banned ~a after they joined the room." user-id))))))
 
 (define-reporter check-soft-ban (room-id target-user result)
