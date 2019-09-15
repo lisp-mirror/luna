@@ -8,12 +8,12 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 (declaim (inline step-result))
 (defun step-result  (room-id &key sub-steps condition description show-room)
   (apply #'make-step
-         (remove-if #'null `((:room . ,room-id)
-                             (:condition . ,condition)
-                             (:sub-steps . ,sub-steps)
-                             (:description . ,description)
-                             (:show-room . ,show-room))
-                    :key #'cdr)))
+         (append `((:room . ,room-id))
+          (remove-if #'null `((:condition . ,condition)
+                              (:sub-steps . ,sub-steps)
+                              (:description . ,description)
+                              (:show-room . ,show-room))
+                     :key #'cdr))))
 
 (declaim (inline make-step))
 (defun make-step (&rest step-args)

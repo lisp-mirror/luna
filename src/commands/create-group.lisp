@@ -28,7 +28,7 @@
            (mapcar (lambda (s)
                      (cdr (assoc :room (cdr s))))
                    (remove-if #'step-condition results)))
-    (step-result control :sub-steps results)))
+    (step-result nil :sub-steps results)))
 
 (define-command-parser add-to-group (name rest room-id event)
   "GROUP TARGET-ROOMS...

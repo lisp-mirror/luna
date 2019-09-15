@@ -44,8 +44,9 @@ Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>|#
 
 (defmethod report ((key (eql :step)) association stream format)
   (symbol-macrolet ((report-room-info?
-                     (or always-show-room (and (cdr room-info)
-                                               (or condition sub-steps)))))
+                     (or (and (cdr room-info) always-show-room)
+                         (and (cdr room-info)
+                              (or condition sub-steps)))))
     (let ((room-info (assoc :room (cdr association)))
           (condition (cdr (assoc :condition (cdr association))))
           (sub-steps (assoc :sub-steps (cdr association)))
