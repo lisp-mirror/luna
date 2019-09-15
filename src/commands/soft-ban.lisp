@@ -89,7 +89,7 @@ See define-step"
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to ban in this room." sender)))
 
-  (step-result nil :sub-steps
+  (step-result control :sub-steps
     (mapgroup (lambda (r)
                 (room-soft-ban r control group event-id target-user reason))
               control group)))

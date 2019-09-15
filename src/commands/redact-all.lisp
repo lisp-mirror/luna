@@ -22,7 +22,7 @@
     (error 'luna-permission-error :description
            (format nil "~a doesn't have permission to redact in this room." sender)))
 
-  (step-result nil :sub-steps
+  (step-result control :sub-steps
     (mapgroup
      (lambda (r)
        (room-redact-all r control group target-user reason))
