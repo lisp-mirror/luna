@@ -8,9 +8,9 @@
     (unless (jsown:keyp group "target_rooms")
       (error 'luna-error :description (format nil "no target rooms for group ~a" group-name)))
 
-    (with-output-to-string (s)
-      (dolist (room (jsown:val group "target_rooms"))
-        (format s "~a~%~%" (room-preview room))))))
+    `(:report ,@
+      (loop :for room :in (jsown:val group "target_rooms") :collecting
+        `(:room . ,room)))))
 
 (define-command-parser list (name rest room-id event)
   "GROUP

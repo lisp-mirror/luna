@@ -49,3 +49,9 @@ ensure the left margin.
 description appears indented with the room preview if one is provided or the step
 experianced a condition..
 
+::
+(:report)
+::
+
+just prints elemetns however they're specified by their methods. Doesn't need
+implementing since the default method just maps report to the cdr.
