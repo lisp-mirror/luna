@@ -1,3 +1,11 @@
+# Project shelved
+
+This project is no longer being worked on because [mjolnir](https://github.com/matrix-org/mjolnir) is now a thing which has the same scope and is bankrolled by matrix.org
+
+That being said the contents of luna.framework is just a bot framework and is technically still being used by gatekeeper and if I ever make another matrix bot, it will probably have to use luna.framework too.
+
+Unfortunately cl-matrix has some problems that do need dealing with too and I don't really know how much time I can commit to fixing those
+
 # luna
 Extensible group management bot for matrix (matrix.org) to aid moderation of rooms and spam removal.
 Luna is a group management bot for matrix, however it contains a framework that can be used to make a matrix bot to do anything. [doc](https://gnuxie.gitlab.io/luna/)
