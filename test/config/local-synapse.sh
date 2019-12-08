@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+## THIS HAS BEEN MOVED TO CL-MATRIX TEST
 datadir=/tmp/data
 
 docker stop synapse

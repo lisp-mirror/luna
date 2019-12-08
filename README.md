@@ -42,9 +42,12 @@ As of writing there is no reason at all for luna to be over pl 50, however somet
 You'll want to make sure [quicklisp](https://www.quicklisp.org/beta/) is installed (and if you're completely new to CL, you'll probably want to install sbcl).
 Then clone these repos into quicklisp local projects.
 
+This project hasn't been updated to use the most recent version of cl-matrix and you'll need
+v0.1.1
+
 ```
 cd ~/quicklisp/local-projects/
-git clone https://gitlab.com/Gnuxie/cl-matrix.git
+git clone --branch v0.1.1 https://gitlab.com/Gnuxie/cl-matrix.git
 git clone https://gitlab.com/Gnuxie/luna.git
 ```
 

@@ -20,5 +20,5 @@ before_script:
         - ln -s "${CI_PROJECT_DIR}" ~/quicklisp/local-projects/luna
         - apt-get update -qy
         - apt-get install -y git
-        - git clone https://gitlab.com/Gnuxie/cl-matrix.git ~/quicklisp/local-projects/cl-matrix
+        - git clone --branch v0.1.1 https://gitlab.com/Gnuxie/cl-matrix.git ~/quicklisp/local-projects/cl-matrix
         - sbcl --quit --eval '(ql:update-dist "quicklisp" :prompt nil)'

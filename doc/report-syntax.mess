@@ -8,37 +8,17 @@ we are already doing, we should aim to erradicate that.
 
 lists are represented in the same way they are already in lisp.
 
-## condition
-
-::
-(:room
-  (:id "")
-  (:condition)
-)
-::
-
-## pass, failed, contested.
-
-to be infered by the reporter.
-
-technicalyl the reporter could do this calculation as it walks the tree
-and add the attribute.
-
 ## how to distinguish between a list and more properties? do we need to?
 
 you can just do something like (:steps (:foo ..)) to get the nested stuff.
 ::
 (defgeneric report (stream car rest &optional format))
-
-(:room
-  (:id "foo")
-  (:condition c))
 ::
 
 ::
 (:step
-  (:room "!foo:matrix.org")
-  (:condition c)
+  (:room . "!foo:matrix.org")
+  (:condition . c)
   (:values )
   (:sub-steps ...))
 ::
@@ -50,7 +30,7 @@ description appears indented with the room preview if one is provided or the ste
 experianced a condition..
 
 ::
-(:report)
+(:report ...)
 ::
 
 just prints elemetns however they're specified by their methods. Doesn't need
